@@ -11,7 +11,7 @@ using namespace cv;
 
 int main(int argc, char ** argv)
 {
-  VideoCapture cap(1);
+  VideoCapture cap(0);
   if(!cap.isOpened())
     return -1;
   namedWindow("Scharr", 1);
@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
   Mat buffer;
   Mat out;
   Mat normPattern, invPattern;
-  normPattern = imread("/home/cody/dev/multisurface_projector/gray_projector/Patterns/ConventionalGray/08.bmp",1);
+  normPattern = imread("Patterns/ConventionalGray/08.bmp",1);
   cvtColor(normPattern, normPattern, CV_BGR2GRAY);
   //normPattern = normPattern.t();
   //cv.Resize(normPattern, normPattern, interpolation
