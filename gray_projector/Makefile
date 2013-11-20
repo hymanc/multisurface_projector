@@ -14,3 +14,6 @@ clean:
 	
 cleanosx: 
 	rm -rf testosx
+
+cp:
+	echo "Don't do it... Don't you do it"
