@@ -22,9 +22,9 @@ int main(int argc, char ** argv)
   Mat normPattern, invPattern;
   normPattern = imread("/home/cody/dev/multisurface_projector/gray_projector/Patterns/ConventionalGray/08.bmp",1);
   cvtColor(normPattern, normPattern, CV_BGR2GRAY);
-  normPattern = normPattern.t();
-  cv.Resize(normPattern, normPattern, interpolation
-  normPattern.resize(Size(320,240),0);
+  //normPattern = normPattern.t();
+  //cv.Resize(normPattern, normPattern, interpolation
+  //normPattern.resize(Size(320,240),0);
   Mat whiteMat = Mat::ones(normPattern.size(),normPattern.type())*255;
   subtract(whiteMat, normPattern, invPattern);
   invPattern = normPattern;
