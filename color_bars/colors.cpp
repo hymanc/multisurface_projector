@@ -42,28 +42,27 @@ int main(int argc, char* argv[]){
     
     int pixels_filled = 0;
     
-    int color_width, R, G, B;
+    int  R, G, B;
     
     while(pixels_filled < w){
+        if((w - pixels_filled) < 10){
+            pixels_filled += w - pixels_filled;
+            break;
+        } else {
+            pixels_filled += 8;
+        }
+
         R = rand() % 156 + 100;
         G = rand() % 156 + 100;
         B = rand() % 156 + 100;
         
-        if((w - pixels_filled) < 10){
-            color_width = w - pixels_filled;
-            MyLine(pattern, pixels_filled, Scalar(R,G,B), color_width);
+        if((w - pixels_filled) < 2){
+            MyLine(pattern, pixels_filled, Scalar(R,G,B), w - pixels_filled);
             break;
         } else {
-            color_width = rand() % 5 + 5;
-            MyLine(pattern, pixels_filled, Scalar(R,G,B), color_width);
+            MyLine(pattern, pixels_filled, Scalar(R,G,B), 2);
         }
         
-        if((w - pixels_filled) < 25){
-            pixels_filled += w - pixels_filled;
-            break;
-        } else {
-            pixels_filled += rand() % 5 + 20;
-        }
     }
     imwrite( filename, pattern );
     imshow( window, pattern );
