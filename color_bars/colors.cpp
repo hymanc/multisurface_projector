@@ -2,6 +2,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <time.h>
 
+#define BLACK_SPACE     8
+#define COLOR_BAR_WIDTH 2
+
 int w;
 int h;
 
@@ -45,22 +48,22 @@ int main(int argc, char* argv[]){
     int  R, G, B;
     
     while(pixels_filled < w){
-        if((w - pixels_filled) < 10){
+        if((w - pixels_filled) < BLACK_SPACE){
             pixels_filled += w - pixels_filled;
             break;
         } else {
-            pixels_filled += 8;
+            pixels_filled += BLACK_SPACE;
         }
 
         R = rand() % 156 + 100;
         G = rand() % 156 + 100;
         B = rand() % 156 + 100;
         
-        if((w - pixels_filled) < 2){
+        if((w - pixels_filled) < COLOR_BAR_WIDTH){
             MyLine(pattern, pixels_filled, Scalar(R,G,B), w - pixels_filled);
             break;
         } else {
-            MyLine(pattern, pixels_filled, Scalar(R,G,B), 2);
+            MyLine(pattern, pixels_filled, Scalar(R,G,B), COLOR_BAR_WIDTH);
         }
         
     }
