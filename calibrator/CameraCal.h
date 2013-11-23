@@ -1,8 +1,8 @@
 #ifndef CAMERA_CAL_H
 #define CAMERA_CAL_H 
 
-#include <opencv2/opencv.h>
-#include <stdlib>
+#include <opencv2/opencv.hpp>
+#include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 
@@ -15,19 +15,17 @@ using namespace cv;
 class CameraCal
 {
 public:
-  CameraCalibrator(void);
-  CameraCalibrator(VideoCapture c);
-  virtual ~CameraCalibrator(void);
+  CameraCal(void);
+  CameraCal(VideoCapture *c);
+  virtual ~CameraCal(void);
   void calibrate(unsigned int n);
-  Settings loadCalibration(String path);
-  bool saveCalibration(String path);
-  bool setCaptureSource(VideoCapture c);
+  bool setCaptureSource(VideoCapture *c);
 private:
-  VideoCapture cap;     // Video capture stream
+  VideoCapture *cap;     // Video capture stream
   vector<Mat> imBuffer; // Image buffer
-  vector<vector<Point2f>> pointBuffer; // Detected point buffer
+  vector< vector<Point2f> > pointBuffer; // Detected point buffer
   Mat getShot(void);	
   
-}
+};
 
 #endif
