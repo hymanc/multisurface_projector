@@ -55,9 +55,9 @@ int main(int argc, char* argv[]){
             pixels_filled += BLACK_SPACE;
         }
 
-        R = rand() % 156 + 100;
-        G = rand() % 156 + 100;
-        B = rand() % 156 + 100;
+        R = rand() % 206 + 50;
+        G = rand() % 206 + 50;
+        B = rand() % 206 + 50;
         
         if((w - pixels_filled) < COLOR_BAR_WIDTH){
             MyLine(pattern, pixels_filled, Scalar(R,G,B), w - pixels_filled);
