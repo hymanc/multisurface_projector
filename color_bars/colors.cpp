@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
     
     h = 750;
     w = 1000;
-    String filename = "/User/scottmeldrum/Pictures/pattern.bmp";
+    String filename = "/User/scottmeldrum/Pictures/pattern.png";
     
     srand (time(NULL));
     
