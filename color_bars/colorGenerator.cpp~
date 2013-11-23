@@ -1,0 +1,86 @@
+#include "colorGenerator.h"
+
+using namespace cv;
+using namespace std;
+
+void colorGenerator::MyLine( Mat img, int x, Scalar color, int thickness)
+{
+//    int thickness = 2;
+  int lineType = 8;
+  line( img,
+       Point(x,0),
+       Point(x,height),
+       color,
+       thickness,
+       lineType );
+}
+
+colorGenerator::colorGenerator(int w, int h, String fname)
+{
+  width=w;
+  height=h;
+  filename=fname;
+  pattern = Mat::zeros( h, w, CV_8UC3 );
+}
+colorGenerator::colorGenerator(int w, int h)
+{
+  colorGenerator(w,h,"Pattern");
+}
+
+void colorGenerator::saveToFile()
+{
+  if(!pattern.empty())
+    imwrite( filename, pattern );
+  else
+  {
+    cout << "The object's pattern is empty" << endl;
+    cout << "No file of name: " << filename << " will be saved" << endl;
+    cout << "Generate the pattern using generatePattern()" << endl;
+  }
+}
+void colorGenerator::setWidth(int w) {width = w;}
+void colorGenerator::setHeigth(int h) {height = h;}
+void colorGenerator::setFilename(String fname) {filename = fname;}
+void colorGenerator::displayWindow(String winName)
+{
+  if(!pattern.empty())
+      imshow( winName, pattern );
+  else
+  {
+    cout << "The object's pattern is empty" << endl;
+    cout << "It will not be displayed" << endl;
+    cout << "Generate the pattern using generatePattern()" << endl;
+  }	
+}
+Mat colorGenerator::generatePattern()
+{
+	//destroy old pattern
+	pattern = Mat::zeros( height, width, CV_8UC3 );
+        srand (time(NULL));
+	int pixels_filled = 0;
+	int  R, G, B;
+	while(pixels_filled < width)
+	{
+	if((width - pixels_filled) < BLACK_SPACE)
+	{
+	    pixels_filled += width - pixels_filled;
+	    break;
+	} 
+	else 
+	{
+	    pixels_filled += BLACK_SPACE;
+	}
+	R = rand() % 156 + 100;
+	G = rand() % 156 + 100;
+	B = rand() % 156 + 100;
+	if((w - pixels_filled) < COLOR_BAR_WIDTH)
+	{
+	    MyLine(pattern, pixels_filled, Scalar(R,G,B), w - pixels_filled);
+	    break;
+	} 
+	else
+	    MyLine(pattern, pixels_filled, Scalar(R,G,B), COLOR_BAR_WIDTH);
+
+	}
+	return pattern;
+}
