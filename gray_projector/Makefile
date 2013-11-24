@@ -1,19 +1,19 @@
-SOURCE = test.cpp
+SOURCE = gproject.cpp GrayProjector.cpp
 
 FLAGS = `pkg-config --cflags --libs opencv`
 
 
 all: $(SOURCE) 
-	g++ $(SOURCE) -o test $(FLAGS)
+	g++ $(SOURCE) -o grayProjector $(FLAGS)
 
 osx: $(SOURCE) 
-	g++ $(SOURCE) -o testosx $(FLAGS)
+	g++ $(SOURCE) -o grayProjectorosx $(FLAGS)
 
 clean: 
-	rm -rf test
+	rm -rf grayProjector
 	
 cleanosx: 
-	rm -rf testosx
+	rm -rf grayProjectorosx
 
 cp:
 	echo "Don't do it... Don't you do it"

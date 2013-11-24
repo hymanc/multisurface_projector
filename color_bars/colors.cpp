@@ -31,8 +31,10 @@ int main(int argc, char* argv[]){
 //    w = atoi(argv[2]);
 //    char* filename = argv[3];
     
-    h = 750;
-    w = 1000;
+    //h = 750;
+    //w = 1000;
+    w = 640;
+    h = 480;
     String filename = "/User/scottmeldrum/Pictures/pattern.png";
     
     srand (time(NULL));

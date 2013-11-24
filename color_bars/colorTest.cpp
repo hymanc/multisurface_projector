@@ -33,17 +33,20 @@ int main(int argc, char* argv[]){
 //    w = atoi(argv[2]);
 //    char* filename = argv[3];
     
-    h = 750;
-    w = 1000;
-    String filename = "pattern2.png";
+    h = 480;
+    w = 640;
+    String filename = "patternV.png";
     colorGenerator *g = new colorGenerator(w,h,filename);
-    g->generatePattern();
+    g->generateVerticalPattern();
     g->displayWindow("Pattern");
     g->saveToFile();
-
+    
     waitKey( 0 );
-    g->generatePattern();
+    filename = "patternH.png";
+    g->generateHorizontalPattern();
     g->displayWindow("Pattern2");
+    g->setFilename(filename);
+    g->saveToFile();
     waitKey( 0 );
     return(0);
 }

@@ -21,7 +21,7 @@ class colorGenerator{
 	String filename;
 	Mat pattern;
 
-	void MyLine( Mat img, int x, Scalar color, int thickness);
+	void MyLine( Mat img, int x, bool vertical, Scalar color, int thickness);
 
 
 	public:
@@ -33,6 +33,7 @@ class colorGenerator{
 	void setHeigth(int h);
 	void setFilename(String fname);
 	void displayWindow(String winName);
-	Mat generatePattern();
+	Mat generateHorizontalPattern();
+	Mat generateVerticalPattern();
 };
 #endif

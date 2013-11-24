@@ -9,12 +9,12 @@ using namespace cv;
 
 int main(int argc, char ** argv)
 {
-  VideoCapture cap(0);
+  VideoCapture cap(1);
   if(!cap.isOpened())
     return -1;
   namedWindow("Scharr", 1);
   namedWindow("Input",1);
-  namedWindow("Output",1); // Pattern output
+  namedWindow("Output", CV_WINDOW_NORMAL); // Pattern output
   Mat buffer;
   Mat out;
   Mat normPattern, invPattern;
@@ -26,6 +26,8 @@ int main(int argc, char ** argv)
   Mat whiteMat = Mat::ones(normPattern.size(),normPattern.type())*255;
   subtract(whiteMat, normPattern, invPattern);
   invPattern = normPattern;
+  setWindowProperty("Output", CV_WND_PROP_FULLSCREEN,CV_WINDOW_FULLSCREEN);
+  imshow("Output",normPattern);
   int patternCount = 0;
   bool invertFlag = false;
   while(1)
