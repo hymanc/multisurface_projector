@@ -18,10 +18,12 @@ int main(int argc, char ** argv)
   Mat currentFrame;
   Mat processMat;
   Mat c1mat;
+  Mat bw;
   vector<Mat> channels;
   namedWindow("Input",1);
   namedWindow("Normalized",1);
   namedWindow("Filter",1);
+  namedWindow("BW",1);
   cap >> currentFrame;
   waitKey(400);
   while(1)
@@ -33,15 +35,21 @@ int main(int argc, char ** argv)
     {
       processMat = currentFrame(roi);
       resize(processMat,processMat,Size(700,480),CV_INTER_LINEAR);
+      cvtColor(processMat,bw,CV_BGR2GRAY);
       medianBlur(processMat, processMat, 5); // Median blur to reduce camera noise
-      cvtColor(processMat, processMat, CV_BGR2YCrCb);
-      split(processMat, channels);
-      equalizeHist(channels[0], channels[0]);
-      merge(channels, processMat);
-      cvtColor(processMat, processMat, CV_YCrCb2BGR);
+      //cvtColor(processMat, processMat, CV_BGR2YCrCb);
+      //split(processMat, channels);
+      //equalizeHist(channels[0], channels[0]);
+      //merge(channels, processMat);
+      //cvtColor(processMat, processMat, CV_YCrCb2BGR);
+      Scharr(bw, bw, CV_8U,1,0,1,5, BORDER_DEFAULT);
+      medianBlur(bw, bw, 3);
+      inRange(bw, Scalar(50), Scalar(255), bw);
       imshow("Normalized", processMat);
+      imshow("BW",bw);
       cvtColor(processMat, processMat, CV_BGR2HSV);// Convert to HSV
-      inRange(processMat, Scalar(-5,30,50), Scalar(5,255,250),c1mat);// Filter by color
+      inRange(processMat, Scalar(170,0,40), Scalar(172,255,200),c1mat);// Filter by color
+      GaussianBlur(c1mat,c1mat,Size(5,5),0,0);
       imshow("Filter",c1mat);
     }
     if(waitKey(30) >= 0)
