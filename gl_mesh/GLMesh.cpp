@@ -2,11 +2,12 @@
 
 GLMesh::GLMesh(Vector<vec3> verts)
 {
-  
+   vertices = verts;
 }
 
 void GLMesh::render()
 {
+  int i;
   
 }
 

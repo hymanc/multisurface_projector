@@ -6,6 +6,10 @@
 
 class GLMesh
 {
-  
-  
+public:
+  GLMesh(Vector<vec3> vertexList);
+  void render();
+  void setColor(vec3 color);
+private:  
+  Vector<vec3> vertices;
 };
