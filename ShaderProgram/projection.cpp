@@ -1,0 +1,1 @@
+Matrix.frustumM(texProjMatrix, 0, -nearPlaneSize.x, nearPlaneSize.x,

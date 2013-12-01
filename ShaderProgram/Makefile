@@ -1,4 +1,4 @@
-SOURCE = shaderTest.cpp ShaderProgram.cpp 
+SOURCE = shaderTest.cpp ShaderProgram.cpp controls.cpp
 
 FLAGS = -L /usr/lib -lglfw -lGLEW -lGL
 

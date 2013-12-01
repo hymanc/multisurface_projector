@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include "ProcGen.hpp"
+
 #define INV_THRESHOLD 2
 
 using namespace cv;
@@ -15,9 +17,13 @@ int main(int argc, char ** argv)
   namedWindow("Scharr", 1);
   namedWindow("Input",1);
   namedWindow("Output", CV_WINDOW_NORMAL); // Pattern output
+  namedWindow("Gray", 1);
+  
   Mat buffer;
   Mat out;
   Mat normPattern, invPattern;
+  Mat testGray = ProcGen::getPattern(Size(480,848),3,VERTICAL,false);
+  imshow("Gray", testGray);
   normPattern = imread("Patterns/ConventionalGray/08.bmp",1);
   cvtColor(normPattern, normPattern, CV_BGR2GRAY);
   //normPattern = normPattern.t();

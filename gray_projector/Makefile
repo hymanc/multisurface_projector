@@ -1,6 +1,6 @@
-SOURCE = gproject.cpp GrayProjector.cpp
+SOURCE = grayTest.cpp ProcGen.cpp
 
-FLAGS = `pkg-config --cflags --libs opencv`
+FLAGS = `pkg-config --cflags --libs opencv` -lm
 
 
 all: $(SOURCE) 
