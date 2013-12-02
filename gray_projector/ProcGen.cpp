@@ -37,7 +37,8 @@ Mat ProcGen::getPattern(Size imSize, uint level, uint direction, bool inverted)
   printf("Number of white bars: %d\n",itEnd);
   
   // Crop
-  Mat retImg = workImg(Rect(0,0,x-1,y-1));
+  Mat retImg;
+  cvtColor(workImg(Rect(0,0,x-1,y-1)),retImg, CV_RGB2GRAY);
   return retImg;
 }
 
