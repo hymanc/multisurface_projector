@@ -95,14 +95,13 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, int levels, int level)
 
 /**
  * @brief Computes the disparity between the images given a calibrated fundamental matrix
- * @param f Fundamental matrix describing transform from camera->projector frame
  * @return Disparity map image from the projector perspective
  */
-Mat ActiveStereoMap::computeDisparity(Mat f)
+Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, mat T)
 {
   Mat retMat;
   // TODO: everything in this function
-  // Rectify-Transform camera F*grayMap 
+  //stereoRectify(grayImg, dCam, grayMap, dProj, R,T,RotOut1, RotOut2, ProjO1, ProjO2, dispToDepth, 0, -1, 2*patternSize,ROI1, ROI2);// Rectify-Transform camera F*grayMap 
   // Gray-filter camera image
   // Find distance to matching patch along epipolar line
   return retMat;
