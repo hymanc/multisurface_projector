@@ -1,11 +1,28 @@
-SOURCE = shaderTest.cpp ShaderProgram.cpp controls.cpp
-
-FLAGS = -L /usr/lib -lglfw -lGLEW -lGL -lSOIL
-
-all: $(SOURCE) 
-	g++ $(SOURCE) -o shaderTest $(FLAGS)
-
-clean: 
-	rm -rf *.o
-	rm -rf shaderTest
 	
+# The Magical Makefile
+# (C) 1982, 
+# just kidding
+# For Self-Calibrating Projector Project
+
+cc = g++
+ld = g++
+cflags = -L /usr/lib -lglfw -lGLEW -lGL -lSOIL
+lflags = -L /usr/lib -lglfw -lGLEW -lGL -lSOIL
+
+src = shaderTest.cpp ShaderProgram.cpp controls.cpp vboindexer.cpp objloader.cpp
+obj = shaderTest.o ShaderProgram.o controls.o vboindexer.o objloader.o
+exe = shaderTest
+
+all: $(exe)
+
+$(exe): $(obj)
+	$(ld) $(obj) -o $(exe) $(lflags) 
+
+compile: 
+%.o: %.c
+	$(cc) -c $(cflags) $*.c -o $*.o
+	
+clean:
+	rm -f *.o
+	rm -f $(exe)
+

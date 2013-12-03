@@ -1,5 +1,8 @@
 #include "ShaderProgram.h"
 #include "controls.hpp"
+//#include "objloader.hpp"
+//#include "vboindexer.hpp"
+
 #include <SOIL/SOIL.h>
 #include <GL/glfw.h>
 
