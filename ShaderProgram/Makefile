@@ -9,8 +9,8 @@ ld = g++
 cflags = -L /usr/lib -lglfw -lGLEW -lGL -lSOIL
 lflags = -L /usr/lib -lglfw -lGLEW -lGL -lSOIL
 
-src = shaderTest.cpp ShaderProgram.cpp controls.cpp vboindexer.cpp objloader.cpp
-obj = shaderTest.o ShaderProgram.o controls.o vboindexer.o objloader.o
+src = shaderTest.cpp ShaderProgram.cpp controls.cpp texture.cpp vboindexer.cpp objloader.cpp
+obj = shaderTest.o ShaderProgram.o controls.o vboindexer.o objloader.o texture.o
 exe = shaderTest
 
 all: $(exe)

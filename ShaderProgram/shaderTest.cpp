@@ -1,7 +1,8 @@
 #include "ShaderProgram.h"
 #include "controls.hpp"
-//#include "objloader.hpp"
-//#include "vboindexer.hpp"
+#include "objloader.hpp"
+#include "vboindexer.hpp"
+#include "texture.hpp"
 
 #include <SOIL/SOIL.h>
 #include <GL/glfw.h>
@@ -45,6 +46,7 @@ GLuint initDefaultShader(void)
   return ShaderProgram::loadShader(vshaderPath, fshaderPath);
 }
 
+
 GLuint initPMapShader(void)
 {
   const char * vshaderPath = "/home/cody/dev/multisurface_projector/ShaderProgram/proj_vert.glsl";
@@ -66,6 +68,38 @@ int main(int argc, char ** argv)
   glGenVertexArrays(1, &vertexArrayId);
   glBindVertexArray(vertexArrayId);
   
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
+	bool res = loadOBJ("room_thickwalls.obj", vertices, uvs, normals);
+	std::vector<unsigned short> indices;
+	std::vector<glm::vec3> indexed_vertices;
+	std::vector<glm::vec2> indexed_uvs;
+	std::vector<glm::vec3> indexed_normals;
+	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
+
+  	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
+
+	GLuint normalbuffer;
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_normals.size() * sizeof(glm::vec3), &indexed_normals[0], GL_STATIC_DRAW);
+
+	// Generate a buffer for the indices as well
+	GLuint elementbuffer;
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+
+	
   GLfloat size = 10.0f;
   static const GLfloat g_vertex_buffer_data[] = 
   {
@@ -106,8 +140,9 @@ int main(int argc, char ** argv)
   //glGenFramebuffers(1, &FramebufferName);
   //glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
-  
-   printf("Grabbing texture\n");
+  GLuint Texture = loadDDS("uvmap.DDS");
+  /*
+  printf("Grabbing texture\n");
   const char* texPath = "home/cody/dev/multisurface_projector/ShaderProgram/checker_256x256.bmp";
   GLuint projTexture = SOIL_load_OGL_texture(
 			texPath,
@@ -125,8 +160,14 @@ int main(int argc, char ** argv)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  */
   
-  
+  GLuint TextureID  = glGetUniformLocation(projProgId, "projTexture");
+  // Bind our texture in Texture Unit 0
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, Texture);
+  // Set our "myTextureSampler" sampler to user Texture Unit 0
+  glUniform1i(TextureID, 0);
   
   /*glDrawBuffer(GL_NONE);
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -134,6 +175,7 @@ int main(int argc, char ** argv)
   */
 
   glUseProgram(projProgId);
+  
   printf("Alive before loop\n");
   do
   {
@@ -153,21 +195,63 @@ int main(int argc, char ** argv)
     0.0, 0.0, 0.5, 0.0,
     0.5, 0.5, 0.5, 1.0
     );
-    glm::mat4 depthModelMatrix = ModelMatrix;
+    glm::mat4 ProjModelMatrix = ModelMatrix;
     glm::vec3 synthProjPos(5,0,10);
-    glm::mat4 depthProjectionMatrix = glm::perspective(5.0f, 1.0f, 2.0f, 50.0f);
-    glm::mat4 depthViewMatrix = glm::lookAt(synthProjPos, vec3(0,0,0), glm::vec3(0,1,0));
-    glm::mat4 texMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+    glm::mat4 ProjProjectionMatrix = glm::perspective(5.0f, 1.0f, 2.0f, 50.0f);
+    glm::mat4 ProjViewMatrix = glm::lookAt(synthProjPos, vec3(0,0,0), glm::vec3(0,1,0));
+    glm::mat4 texMVP = ProjProjectionMatrix * ViewMatrix * ModelMatrix;
     glUniformMatrix4fv(texMatrixId, 1, GL_FALSE, &texMVP[0][0]);
     
     // First pass for texture mapping
     //glUseProgram(projProgId);
     
+    /*
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void *)0);
     glDrawArrays(GL_TRIANGLES, 0 ,6);
     glDisableVertexAttribArray(0);
+    */
+    
+      glEnable(GL_CULL_FACE);
+      glCullFace(GL_BACK);
+		
+      glEnableVertexAttribArray(0);
+      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+      glVertexAttribPointer(
+	      0,  // The attribute we want to configure
+	      3,                  // size
+	      GL_FLOAT,           // type
+	      GL_FALSE,           // normalized?
+	      0,                  // stride
+	      (void*)0            // array buffer offset
+      );
+
+      glEnableVertexAttribArray(1);
+      glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+      glVertexAttribPointer(
+	1,
+	2,
+	GL_FLOAT,
+	GL_FALSE,
+	0,
+	(void *) 0
+      );
+      
+      // Index buffer
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+      // Draw the triangles !
+      glDrawElements(
+	      GL_TRIANGLES,      // mode
+	      indices.size(),    // count
+	      GL_UNSIGNED_SHORT, // type
+	      (void*)0           // element array buffer offset
+      );
+
+      glDisableVertexAttribArray(0);
+      glDisableVertexAttribArray(1);
+    
     
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
@@ -185,14 +269,12 @@ int main(int argc, char ** argv)
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void *)0);
     glDrawArrays(GL_TRIANGLES, 0 ,6);
     glDisableVertexAttribArray(0);
+    */
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, Texture);
-    glUniformli(TextureID, 0);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, depthTexture);
-    glUniformli(ProjMapID,1);
-    */
+    glUniform1i(TextureID, 0);
+
     
     // Swap out frame buffer
     glfwSwapBuffers();
@@ -206,8 +288,8 @@ int main(int argc, char ** argv)
   //glDeleteBuffers(1, &normalbuffer);
   glDeleteVertexArrays(1, &vertexArrayId);
   glDeleteProgram(projProgId);
-  glDeleteTextures(1, &projTexture);
-  
+  //glDeleteTextures(1, &projTexture);
+  glDeleteTextures(1, &Texture);
   //glDeleteFramebuffers(1, &FramebufferName);
   //glDeleteTextures(1, &depthTexture);
   
