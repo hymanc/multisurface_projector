@@ -100,20 +100,22 @@ int main(int argc, char ** argv)
   glDepthFunc(GL_LESS); 
   
   // Load Texture
-  GLuint Texture = loadDDS("uvmap.DDS");
-  /*printf("Grabbing texture\n");
-  const char* texPath = "home/cody/dev/multisurface_projector/ShaderProgram/checker_256x256.bmp";
+  //GLuint Texture = loadDDS("uvmap.DDS");
+  printf("Grabbing texture\n");
+  /*const char *texPath = "home/cody/dev/multisurface_projector/ShaderProgram/checker_256x256.jpg";
   GLuint Texture = SOIL_load_OGL_texture(
 			texPath,
 			0,
 			SOIL_CREATE_NEW_ID,
 			0);
   printf("Texture loaded\n");*/
+  //GLuint Texture = loadBMP_custom("checker_256x256.bmp");
+  GLuint Texture  = loadBMP_custom("chucknorris.bmp");
   //glGenTextures(1, &Texture);
   //glBindTexture(GL_TEXTURE_2D, Texture);
   printf("Texture bound\n");
  
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 256,256,3, GL_DEPTH_COMPONENT,GL_FLOAT,0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 512,512,3, GL_DEPTH_COMPONENT,GL_FLOAT,0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

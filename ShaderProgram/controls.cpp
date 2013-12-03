@@ -13,6 +13,10 @@ using namespace glm;
 #define GLFW_KEY_A 65
 #define GLFW_KEY_S 83
 #define GLFW_KEY_D 68
+#define GLFW_KEY_Q 81
+#define GLFW_KEY_E 69
+#define GLFW_KEY_Z 90
+#define GLFW_KEY_X 88
 glm::mat4 ViewMatrix;
 glm::mat4 ProjectionMatrix;
 
@@ -137,13 +141,27 @@ void computeProjMatricesFromInputs(){
 	// Get mouse position
 	int xpos, ypos;
 	glfwGetMousePos(&xpos, &ypos);
-
+	int xrot = 0;
+	int yrot = 0;
 	// Reset mouse position for next frame
 	glfwSetMousePos(1024/2, 768/2);
-
+	
+	if(glfwGetKey(GLFW_KEY_Q) == GLFW_PRESS){
+	  xrot += deltaTime * speed;
+	}
+	if(glfwGetKey(GLFW_KEY_E) == GLFW_PRESS){
+	  xrot -= deltaTime * speed;
+	}
+	if(glfwGetKey(GLFW_KEY_Z) == GLFW_PRESS){
+	  yrot += deltaTime * speed;
+	}
+	if(glfwGetKey(GLFW_KEY_X) == GLFW_PRESS){
+	  yrot -= deltaTime * speed;
+	}
+	
 	// Compute new orientation
-	projhorizontalAngle += mouseSpeed * float(1024/2 - xpos );
-	projverticalAngle   += mouseSpeed * float( 768/2 - ypos );
+	projhorizontalAngle += xrot;//mouseSpeed * float(1024/2 - xpos );
+	projverticalAngle   += yrot;//mouseSpeed * float( 768/2 - ypos );
 
 	// Direction : Spherical coordinates to Cartesian coordinates conversion
 	glm::vec3 direction(

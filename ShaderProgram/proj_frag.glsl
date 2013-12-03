@@ -9,7 +9,7 @@ uniform sampler2D projTexture;
 
 void main() 
 { 
-  vec3 tcolor = vec3(0.0,0.0,0.3);
+  vec3 tcolor = vec3(0.1,0.1,0.1);
   if(projTexCoord.q > 0)
   {
     // Use += for 'blend' with ambient = for projection only
