@@ -22,8 +22,6 @@ int main(int argc, char ** argv)
   Mat buffer;
   Mat out;
   Mat normPattern, invPattern;
-  Mat testGray = ProcGen::getPattern(Size(480,848),3,VERTICAL,false);
-  imshow("Gray", testGray);
   normPattern = imread("Patterns/ConventionalGray/08.bmp",1);
   cvtColor(normPattern, normPattern, CV_BGR2GRAY);
   //normPattern = normPattern.t();

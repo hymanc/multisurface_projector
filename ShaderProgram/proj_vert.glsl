@@ -15,12 +15,5 @@ void main()
   projTexCoord = texMVP * vec4(vertexPosition_modelspace, 1);
   projTexCoord.xy = 0.5*projTexCoord.xy + 0.5*projTexCoord.w; // Perform bias
   gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
-  UV = vertexUV;
-  //gl_FrontColor = gl_Color;
-  //gl_Position =  dMVP * vec4(vertexPosition_modelspace,1);
-  // Compute perspective projector frame texture space
-  //vec4 worldPos = InvertedView * gl_ModelViewMatrix * gl_Vertex;
-  //gl_TexCoord[0] = TextureProjMat * worldPos;
-  // Do view camera transform
-  
+  UV = vertexUV; 
 }

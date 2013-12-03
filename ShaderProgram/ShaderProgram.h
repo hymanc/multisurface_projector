@@ -1,3 +1,6 @@
+#ifndef SHADER_PROGRAM_H
+#define SHADER_PROGRAM_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -19,3 +22,5 @@ private:
   static bool compileShader(GLuint *shaderId, std::string source, std::string fname);
   static bool linkShaders(GLuint * progId, GLuint vshaderId, GLuint fshaderId);
 };
+
+#endif
