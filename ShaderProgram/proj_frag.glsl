@@ -1,7 +1,7 @@
 #version 410 core
 
 layout(location=0) in vec4 projTexCoord;
-layout(location=1) in vec2 UV;
+//layout(location=1) in vec2 UV;
 
 layout(location=0) out vec3 color;
 
