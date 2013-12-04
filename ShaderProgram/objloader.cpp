@@ -63,12 +63,16 @@ bool loadOBJ(
 			temp_normals.push_back(normal);
 		}else if ( strcmp( lineHeader, "f" ) == 0 ){
 			std::string vertex1, vertex2, vertex3;
+			printf("Decoding f\n");
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
-			if (matches != 9){
+			int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2] );
+			if (matches != 6){
 				printf("File can't be read by our simple parser :-( Try exporting with other options\n");
 				return false;
 			}
+			uvIndex[0] = 4;
+			uvIndex[1] = 5;
+			uvIndex[2] = 6;
 			vertexIndices.push_back(vertexIndex[0]);
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
@@ -88,17 +92,18 @@ bool loadOBJ(
 
 	// For each vertex of each triangle
 	for( unsigned int i=0; i<vertexIndices.size(); i++ ){
-
 		// Get the indices of its attributes
 		unsigned int vertexIndex = vertexIndices[i];
 		unsigned int uvIndex = uvIndices[i];
 		unsigned int normalIndex = normalIndices[i];
-		
+				printf("STUPID BUFFER1!\n");
 		// Get the attributes thanks to the index
 		glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
-		glm::vec2 uv = temp_uvs[ uvIndex-1 ];
+		printf("STUPID BUFFER2!\n");
+		glm::vec2 uv = glm::vec2(0,0);//temp_uvs[ uvIndex-1 ];
+		printf("STUPID BUFFER3!\n");
 		glm::vec3 normal = temp_normals[ normalIndex-1 ];
-		
+		printf("STUPID BUFFER4!\n");
 		// Put the attributes in buffers
 		out_vertices.push_back(vertex);
 		out_uvs     .push_back(uv);

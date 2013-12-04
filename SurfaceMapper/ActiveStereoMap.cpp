@@ -31,7 +31,7 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   moveWindow("Projector",1600,0);
   imshow("Projector",Mat::zeros(patternSize,CV_8UC1));
   namedWindow("Camera",1);
-  namedWindow("Process",1);
+  //namedWindow("Process",1);
 }
 
 /**
@@ -43,30 +43,19 @@ void ActiveStereoMap::runMapping(int levels)
   int level;
   Mat patMat  = Mat::zeros(patternSize, CV_16UC1);
   Mat tempPattern;
+  Mat tempMat;
   cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
-   waitKey(800);
+  waitKey(1200);
+  cap >> tempMat;
   for(level = 1; level <= levels; level++)
   {
     printf("Running scan at level %d\n",level);
     tempPattern = ProcGen::getPattern(patternSize,level,VERTICAL, false);
     capturePattern(tempPattern, levels, level);
     
-    /*
-    waitKey(300);//usleep(3000000);// sleep
-    cap >> tempMat;
-    cap >> tempMat; 
-    cap >> tempMat; // Multiple calls to clear out buffer (empirically...)
-    processRawImage(tempMat, procMat, 110, intPow(2,levels-level));
-    imshow("Camera",tempMat);
-    imshow("Process",procMat);
-    printf("Size of grayImg %d x %d\n",grayImg.size().width, grayImg.size().height);
-    grayImg += procMat;
-    */
-    
     tempPattern = ProcGen::getPattern(patternSize,level,HORIZONTAL,false);
     imshow("Projector", tempPattern);
     capturePattern(tempPattern, levels, level);
-    
   }
 }
 
@@ -82,11 +71,12 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, int levels, int level)
   
   Mat tempMat;
   Mat procMat = Mat::zeros(streamSize,CV_16UC1);
-  waitKey(300);//usleep(3000000);// sleep
+  waitKey(600);//usleep(3000000);// sleep
   cap >> tempMat;
   cap >> tempMat; 
   cap >> tempMat; // Multiple calls to clear out buffer (empirically...)
-  processRawImage(tempMat, procMat, 110, intPow(2,levels-level));
+  cap >> tempMat;
+  processRawImage(tempMat, procMat, 125, intPow(2,levels-level));
   imshow("Camera",tempMat);
   //imshow("Process",procMat);
   //printf("Size of grayImg %d x %d\n",grayImg.size().width, grayImg.size().height);
@@ -97,7 +87,7 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, int levels, int level)
  * @brief Computes the disparity between the images given a calibrated fundamental matrix
  * @return Disparity map image from the projector perspective
  */
-Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, mat T)
+Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
 {
   Mat retMat;
   // TODO: everything in this function
@@ -134,6 +124,7 @@ Mat ActiveStereoMap::getGrayComposite(void)
 void ActiveStereoMap::processRawImage(Mat rawImg, Mat destImg, int thresh, int factor)
 {
   Mat temp;
+  //Scalar scale = mean(rawImg)/8;
   cvtColor(rawImg, temp, CV_RGB2GRAY);
   medianBlur(temp, temp, 5);
   threshold(temp, temp, thresh, 1 ,THRESH_BINARY);

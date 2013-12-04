@@ -62,24 +62,30 @@ int main(int argc, char ** argv)
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
-	bool res = loadOBJ("room_thickwalls.obj", vertices, uvs, normals);
-	//bool res = loadOBJ("wall_surface_mesh.obj", vertices, uvs, normals);
+	printf("Loading object\n");
+	//bool res = loadOBJ("room_thickwalls.obj", vertices, uvs, normals);
+	bool res = loadOBJ("blender_mesh2.obj", vertices, uvs, normals);
+	
 	std::vector<unsigned short> indices;
 	std::vector<glm::vec3> indexed_vertices;
 	std::vector<glm::vec2> indexed_uvs;
 	std::vector<glm::vec3> indexed_normals;
+	printf("Indexing VBOs\n");
 	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
 
+	printf("Binding vertex buffer\n");
   	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
+	printf("Binding UV buffer\n");
 	GLuint uvbuffer;
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 	glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
 
+	printf("Binding normal buffer\n");
 	GLuint normalbuffer;
 	glGenBuffers(1, &normalbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
@@ -129,7 +135,6 @@ int main(int argc, char ** argv)
   glBindTexture(GL_TEXTURE_2D, Texture);
   glUniform1i(TextureID, 0);
   
-
   glUseProgram(projProgId); // Set shader program
   
   // Render loop
@@ -164,8 +169,8 @@ int main(int argc, char ** argv)
     glUniformMatrix4fv(texMatrixId, 1, GL_FALSE, &texMVP[0][0]);
    
     
-      glEnable(GL_CULL_FACE);
-      glCullFace(GL_BACK);
+      //glEnable(GL_CULL_FACE);
+      //glCullFace(GL_BACK);
 	
       // Buffer binding
       glEnableVertexAttribArray(0);
