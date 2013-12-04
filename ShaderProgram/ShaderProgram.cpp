@@ -13,7 +13,18 @@ GLuint ShaderProgram::loadShader(const char * vshaderPath, const char * fshaderP
   std::string fragmentSource;
   vertexSource   = readShaderSource(vshaderPath);
   fragmentSource = readShaderSource(fshaderPath);
-  
+  if(vertexSource.empty())
+  {
+    std::cout << "Error: vertex shader source is empty\n";
+    std::cout << "Program will now exit\n" << "FIX THE PROBLEM!\n";
+    exit(1);
+  }
+  if(fragmentSource.empty())
+  {
+    std::cout << "Error: fragment shader source is empty\n";
+    std::cout << "Program will now exit\n" << "FIX THE PROBLEM!\n";
+    exit(1);
+  }
   // Compile shaders
   std::cout << "Compiling shaders\n";
   if(!compileShader(&vertexShaderId, vertexSource, vshaderPath))
