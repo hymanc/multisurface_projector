@@ -1,0 +1,28 @@
+	
+# The Magical Makefile
+# (C) 1982, 
+# just kidding
+# For Self-Calibrating Projector Project
+
+cc = g++
+ld = g++
+cflags = -I /usr/include/eigen3 -I /usr/include/pcl -L /usr/lib -lpcl_io -lplc_io_ply -lpcl_common -lpcl_filters -lm
+lflags = `pkg-config --cflags --libs opencv` -L /usr/lib -lpcl_io -lplc_io_ply -lpcl_common -lpcl_filters -lm 
+
+src = pclManipTest.cpp pclManipulator.cpp
+obj = pclManipTest.o pclManipulator.o
+exe = pclManipTest
+
+all: $(exe)
+
+$(exe): $(obj)
+	$(ld) $(obj) -o $(exe) $(lflags) 
+
+compile: 
+%.o: %.c
+	$(cc) -c $(cflags) $*.c -o $*.o
+	
+clean:
+	rm -f *.o
+	rm -f $(exe)
+
