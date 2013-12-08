@@ -47,36 +47,37 @@ void ActiveStereoMap::runMapping(int levels)
   cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
   waitKey(1200);
   cap >> tempMat;
+  imshow("Camera",tempMat);
   for(level = 1; level <= levels; level++)
   {
     printf("Running scan at level %d\n",level);
     tempPattern = ProcGen::getPattern(patternSize,level,VERTICAL, false);
-    capturePattern(tempPattern, levels, level);
+    capturePattern(tempPattern, tempMat, levels, level);
     
     tempPattern = ProcGen::getPattern(patternSize,level,HORIZONTAL,false);
     imshow("Projector", tempPattern);
-    capturePattern(tempPattern, levels, level);
+    capturePattern(tempPattern, tempMat, levels, level);
   }
 }
 
 /**
  * 
  */
-void ActiveStereoMap::capturePattern(Mat tempPattern, int levels, int level)
+void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, int level)
 {
   Mat patMat;
   imshow("Projector", tempPattern);
   tempPattern.convertTo(patMat, CV_16UC1, 1, 0);
   grayPattern += intPow(2,levels-level) * (patMat/255);  
   
-  Mat tempMat;
+  //Mat tempMat;
   Mat procMat = Mat::zeros(streamSize,CV_16UC1);
   waitKey(600);//usleep(3000000);// sleep
   cap >> tempMat;
   cap >> tempMat; 
   cap >> tempMat; // Multiple calls to clear out buffer (empirically...)
   cap >> tempMat;
-  processRawImage(tempMat, procMat, 125, intPow(2,levels-level));
+  processRawImage(tempMat, procMat, 100, intPow(2,levels-level));
   imshow("Camera",tempMat);
   //imshow("Process",procMat);
   //printf("Size of grayImg %d x %d\n",grayImg.size().width, grayImg.size().height);
@@ -91,7 +92,7 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
 {
   Mat retMat;
   // TODO: everything in this function
-  //stereoRectify(grayImg, dCam, grayMap, dProj, R,T,RotOut1, RotOut2, ProjO1, ProjO2, dispToDepth, 0, -1, 2*patternSize,ROI1, ROI2);// Rectify-Transform camera F*grayMap 
+  //stereoRectify(
   // Gray-filter camera image
   // Find distance to matching patch along epipolar line
   return retMat;
@@ -150,4 +151,14 @@ int ActiveStereoMap::intPow(int base, unsigned int pow)
     acc *= base;
   }
   return acc;
+}
+
+/**
+ * 
+ */
+Mat ActiveStereoMap::grayFilter(Mat src, int graylvl)
+{
+  Mat outMat;
+  inRange(src,Scalar(graylvl),Scalar(graylvl), outMat);
+  return outMat;
 }

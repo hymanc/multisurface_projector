@@ -64,14 +64,14 @@ int main(int argc, char ** argv)
 	std::vector<glm::vec3> normals;
 	printf("Loading object\n");
 	//bool res = loadOBJ("room_thickwalls.obj", vertices, uvs, normals);
-	bool res = loadOBJ("blender_mesh1.obj", vertices, uvs, normals);
+	bool res = loadOBJ("demo_wall.obj", vertices, uvs, normals);
 	
 	std::vector<unsigned short> indices;
 	std::vector<glm::vec3> indexed_vertices;
 	std::vector<glm::vec2> indexed_uvs;
 	std::vector<glm::vec3> indexed_normals;
 	printf("Indexing VBOs\n");
-	//indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
+	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
 
 	printf("Binding vertex buffer\n");
   	GLuint vertexbuffer;
