@@ -1,21 +1,10 @@
-#SOURCE = surfaceMapper.cpp ProcGen.cpp ActiveStereoMap.cpp
-
-#FLAGS = `pkg-config --cflags --libs opencv` -lm
-
-
-# all: $(SOURCE) 
-#	g++ $(SOURCE) -o surfaceMapper $(FLAGS)
-
-# clean: 
-#	rm -rf surfaceMapper
-	
 cc = g++
 ld = g++
 cflags = -lm -c
 lflags = `pkg-config --cflags --libs opencv` -lm
 
-src = surfaceMapper.cpp ProcGen.cpp ActiveStereoMap.cpp
-obj = surfaceMapper.o ProcGen.o ActiveStereoMap.o
+src = surfaceMapper.cpp ProcGen.cpp ActiveStereoMap.cpp ActiveCalib.cpp
+obj = surfaceMapper.o ProcGen.o ActiveStereoMap.o ActiveCalib.o
 exe = surfaceMapper
 
 all: $(exe)
