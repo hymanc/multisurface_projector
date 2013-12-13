@@ -86,7 +86,7 @@ int main() {
     detector.detect(F1, key1);
     detector.detect(F2, key2);
     
-    Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SIFT");
+    Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("BRISK");
     extractor->compute( F1, key1, desc1 );
     extractor->compute( F2, key2, desc2 );
     
