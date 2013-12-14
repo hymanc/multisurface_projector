@@ -14,23 +14,37 @@
 using namespace cv;
 class ActiveStereoMap
 {
+  
 public:
   ActiveStereoMap(VideoCapture c, Size projSize);
   void runMapping(int levels);
   Mat computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T);
+  Mat getGrayH(void);
+  Mat getGrayV(void);
   Mat getGraymap(void);
+  Mat getGrayProjH(void);
+  Mat getGrayProjV(void);
   Mat getGrayComposite(void);
   Mat grayFilter(Mat src, int graylvl);
+  static unsigned int grayToBinary(unsigned int graylvl);
+
 private:
   VideoCapture cap;
   Size patternSize;
   Size streamSize;
+  
   Mat grayImg;
   Mat grayPattern;
   
+  Mat grayH;
+  Mat grayV;
+  Mat grayProjH;
+  Mat grayProjV;
+  
   int intPow(int base, unsigned int power);
   void processRawImage(Mat rawImg, Mat destImg, int thresh, int factor);
-  void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level);
+  void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag);
+  Mat getWindow(int x, int y, int size);
 };
 
 #endif

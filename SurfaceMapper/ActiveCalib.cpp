@@ -8,7 +8,7 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
 {
   namedWindow("Preview",1);
   Mat cam, graycam;
-  Mat grayMapCam, grayMapProj;
+  Mat grayMapCamH, grayMapCamV, grayMapProjH, grayMapProjV;
   c >> cam;
   cvtColor(cam, graycam, CV_RGB2GRAY);
   vector<Vec2f> camCorners, projCorners;
@@ -36,9 +36,11 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
 	return false;
     }// Wait for keypress
     map->runMapping(lvls);// Run through pattern
-    grayMapCam = map->getGraymap();
-    grayMapProj = map->getGrayComposite();
-    projCorners = backprojectPoints(grayMapCam, grayMapProj, camCorners);
+    grayMapCamH = map->getGrayH();
+    grayMapCamV = map->getGrayV();
+    grayMapProjH = map->getGrayProjH();
+    grayMapProjV = map->getGrayProjV();
+    projCorners = backprojectPoints(grayMapCamH, grayMapCamV, grayMapProjH, grayMapProjV, camCorners);
     // Iterate over chesskerboard points
     // Correlate chesskerboard corners to projector from graymap locations
     // Store out correspondence pair
@@ -49,20 +51,28 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
  * @brief Finds the corresponding set of points in the projector frame
  * 
  */
-vector<Vec2f> ActiveCal::backprojectPoints(Mat grayMapCam, Mat grayMapProj, vector<Vec2f> camCorners)
+vector<Vec2f> ActiveCal::backprojectPoints(Mat grayMapCamH, Mat grayMapCamV, Mat grayMapProjH, Mat grayMapProjV, vector<Vec2f> camCorners)
 {
   vector<Vec2f> projCorners;
   int len = camCorners.size();
   int it;
+  int imgx, imgy;
+  int projx, projy;
   Scalar currentGray;
-  Vec2b pixCoord;
+  Vec2f pixCoord;
   for(it = 0; it < camCorners.size(); it++)
   {
-    camCorners.ad(it).convertTo(pixCoord, Mat(pixCoord).type());
-    currentGray = grayMapCam.at(pixCoord);// Find gray value at corner location
+    pixCoord = camCorners.at(it);
+    imgx = roundf(pixCoord[0]);
+    imgy = roundf(pixCoord[1]);
+    currentGrayH = grayMapCamH.at<float>(pixCoord[0],pixCoord[1]);// Find gray value at corner location
+    currentGrayV = grayMapCamV.at<float>(pixCoord[0],pixCoord[1]);
+    
+    //printf("Gray Level is %d at %d,%d\n",currentGray,imgx,imgy);
+    
+    //ActiveCal::grayToBinary(currentGray);
     // Find corresponding gray value in projector map and save point 
   }
-
   return projCorners;
 }
 

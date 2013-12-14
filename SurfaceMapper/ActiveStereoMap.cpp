@@ -16,6 +16,8 @@ using namespace std;
  */
 ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
 {
+  //namedWindow("Elephant",CV_WINDOW_NORMAL);
+  //namedWindow("Elephant",1);
   printf("Initializing stereo mapper\n");
   cap = c;
   Mat sizeMat;
@@ -23,15 +25,22 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   streamSize = sizeMat.size();
   printf("Camera resolution: %dx%d\n",streamSize.width,streamSize.height);
   sizeMat.release();
+  
   patternSize = projSize; 
   grayPattern = Mat::zeros(patternSize,CV_16UC1);
-  grayImg     = Mat::zeros(streamSize,CV_16UC1);
+  grayProjH  = Mat::zeros(patternSize,CV_16UC1);
+  grayProjV  = Mat::zeros(patternSize,CV_16UC1);
+  grayImg = Mat::zeros(streamSize,CV_16UC1);
+  grayH = Mat::zeros(streamSize,CV_16UC1);
+  grayV = Mat::zeros(streamSize,CV_16UC1);
   printf("Creating projector window at %dx%d\n",patternSize.width,patternSize.height);
-  namedWindow("Projector",CV_WINDOW_NORMAL);
   moveWindow("Projector",1600,0);
-  imshow("Projector",Mat::zeros(patternSize,CV_8UC1));
+  cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+  Mat filler = Mat::zeros(patternSize,CV_8UC1);
+  imshow("Projector",filler);
   namedWindow("Camera",1);
-  //namedWindow("Process",1);
+  namedWindow("Process",1);
+
 }
 
 /**
@@ -44,7 +53,6 @@ void ActiveStereoMap::runMapping(int levels)
   Mat patMat  = Mat::zeros(patternSize, CV_16UC1);
   Mat tempPattern;
   Mat tempMat;
-  cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
   waitKey(1200);
   cap >> tempMat;
   imshow("Camera",tempMat);
@@ -52,24 +60,26 @@ void ActiveStereoMap::runMapping(int levels)
   {
     printf("Running scan at level %d\n",level);
     tempPattern = ProcGen::getPattern(patternSize,level,VERTICAL, false);
-    capturePattern(tempPattern, tempMat, levels, level);
+    capturePattern(tempPattern, tempMat, levels, level, false);
     
     tempPattern = ProcGen::getPattern(patternSize,level,HORIZONTAL,false);
-    imshow("Projector", tempPattern);
-    capturePattern(tempPattern, tempMat, levels, level);
+    //imshow("Projector", tempPattern);
+    capturePattern(tempPattern, tempMat, levels, level, true);
   }
 }
 
 /**
- * 
+ * @brief Projects and captures the given pattern
  */
-void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, int level)
+void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag)
 {
   Mat patMat;
   imshow("Projector", tempPattern);
-  tempPattern.convertTo(patMat, CV_16UC1, 1, 0);
-  grayPattern += intPow(2,levels-level) * (patMat/255);  
+  int multiplier;
   
+  tempPattern.convertTo(patMat, CV_16UC1, 1, 0);
+  //grayPattern += multiplier * intPow(2,levels-level) * (patMat/255);  
+
   //Mat tempMat;
   Mat procMat = Mat::zeros(streamSize,CV_16UC1);
   waitKey(600);//usleep(3000000);// sleep
@@ -81,7 +91,17 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   imshow("Camera",tempMat);
   //imshow("Process",procMat);
   //printf("Size of grayImg %d x %d\n",grayImg.size().width, grayImg.size().height);
-  grayImg += procMat;
+  if(horizontalFlag)
+  {
+    //grayImg += multiplier * procMat;
+    grayProjH += intPow(2,levels-level)*(patMat/255);
+    grayH += procMat;
+  }
+  else
+  {
+    grayProjV += intPow(2,levels-level)*(patMat/255);
+    grayV += procMat;
+  }
 }
 
 /**
@@ -99,12 +119,44 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
 }
 
 /**
+ * @brief Accessor for horizontal gray camera image
+ */
+Mat ActiveStereoMap::getGrayH(void)
+{
+    return grayH;
+}
+
+/**
+ * @brief Accessor for vertical gray camera image
+ */
+Mat ActiveStereoMap::getGrayV(void)
+{
+    return grayV;
+}
+
+/**
  * @brief Accessor for the camera frame raw gray map
  * @return Camera composite gray map
  */
 Mat ActiveStereoMap::getGraymap(void)
 {
     return grayImg;
+}
+
+/**
+ * 
+ */
+Mat ActiveStereoMap::getGrayProjH(void)
+{
+  return grayProjH;
+}
+
+/**
+ * 
+ */
+Mat ActiveStereoMap::getGrayProjV(void)
+{
+  return grayProjV;
 }
 
 /**
@@ -135,7 +187,7 @@ void ActiveStereoMap::processRawImage(Mat rawImg, Mat destImg, int thresh, int f
 }
 
 /**
- * @brief Simple integer power functoin
+ * @brief Simple integer power function
  * @param base Base integer value
  * @param pow  Integer power 
  * @return Computes base^power
@@ -161,4 +213,27 @@ Mat ActiveStereoMap::grayFilter(Mat src, int graylvl)
   Mat outMat;
   inRange(src,Scalar(graylvl),Scalar(graylvl), outMat);
   return outMat;
+}
+
+/*
+ * 
+ */
+unsigned int ActiveStereoMap::grayToBinary(unsigned int graylvl)
+{
+  unsigned int mask;
+  for (mask = graylvl >> 1; mask != 0; mask = mask >> 1)
+  {
+      graylvl = graylvl ^ mask;
+  }
+  return graylvl;
+}
+
+/**
+ * 
+ */
+Mat ActiveStereoMap::getWindow(int x, int y, int size)
+{
+  Mat window;
+  // Get ROI window centered around pixel 
+  return window;
 }
