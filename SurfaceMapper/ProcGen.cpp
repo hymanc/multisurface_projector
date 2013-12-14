@@ -47,9 +47,37 @@ Mat ProcGen::getPattern(Size imSize, uint level, uint direction, bool inverted)
   // Crop
   Mat retImg;
   retImg = workImg(Rect(0,0,x,y));
+  if(inverted)
+  {
+    invertImage(retImg, retImg);
+  }
   return retImg;
 }
 
+/**
+ * @brief Gets the final gray pattern line size
+ * @param imSize The base size of the projected image
+ * @param nlvls The number of gray levels mapped
+ * @return Width of the minimum gray stripe in pixels
+ */
+uint ProcGen::getMinimumStripeWidth(Size imSize, uint nlvls)
+{
+   uint imgMaxDim;
+   uint imgBound;
+   uint lineWidth;
+   if(imSize.width > imSize.height)
+   {
+     imgMaxDim = imSize.width;
+   }
+   else
+   {
+      imgMaxDim = imSize.height;
+   }
+   imgBound = pow(2,ceil(log(imgMaxDim)/log(2)));
+   lineWidth = imgBound/pow(2,nlvls);
+   return lineWidth;
+}
+  
 /**
  * @brief Function to draw horizontal and vertical white lines/rectangles
  * @param img Image on which to draw
@@ -80,4 +108,13 @@ void ProcGen::drawLine(Mat img, uint start, uint end, uint direction)
 		8,
 		0);
   }
+}
+
+/**
+ * @brief Invert a grayscale image
+ */
+void ProcGen::invertImage(Mat src, Mat dst)
+{
+  Mat whiteMat = 255*Mat::ones(src.size(),CV_8UC1);
+  dst = whiteMat - src;
 }

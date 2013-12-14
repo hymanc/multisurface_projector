@@ -44,7 +44,7 @@ int main(int argc, char ** argv)
   Mat grayPatV = smapper->getGrayProjV();
   grayhorz.convertTo(grayhorz,CV_8UC1,1,0);
   grayPatH.convertTo(grayPatH, CV_8UC1, 1, 0);
-  inRange(grayPatH,58,58,grayPatH);
+  //inRange(grayPatH,58,58,grayPatH);
   namedWindow("Graymap",1);
   imshow("Graymap",grayhorz);
   namedWindow("GrayPattern",1);

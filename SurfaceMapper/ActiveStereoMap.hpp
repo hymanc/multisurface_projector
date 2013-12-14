@@ -27,7 +27,10 @@ public:
   Mat getGrayComposite(void);
   Mat grayFilter(Mat src, int graylvl);
   static unsigned int grayToBinary(unsigned int graylvl);
-
+  static Vec2b findGrayCoordinates(int graylvlH, int graylvlV, int nlvls, Size mapSize);
+  static int intPow(int base, unsigned int power);
+  void showWhite(void);
+  
 private:
   VideoCapture cap;
   Size patternSize;
@@ -41,7 +44,8 @@ private:
   Mat grayProjH;
   Mat grayProjV;
   
-  int intPow(int base, unsigned int power);
+  uint stripeSize;
+  
   void processRawImage(Mat rawImg, Mat destImg, int thresh, int factor);
   void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag);
   Mat getWindow(int x, int y, int size);

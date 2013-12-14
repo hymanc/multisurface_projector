@@ -50,6 +50,7 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
 void ActiveStereoMap::runMapping(int levels)
 {
   int level;
+  stripeSize = ProcGen::getMinimumStripeWidth(patternSize, levels);
   Mat patMat  = Mat::zeros(patternSize, CV_16UC1);
   Mat tempPattern;
   Mat tempMat;
@@ -70,6 +71,11 @@ void ActiveStereoMap::runMapping(int levels)
 
 /**
  * @brief Projects and captures the given pattern
+ * @param tempPattern The current pattern to project
+ * @param tempMat A temporary buffer for captured images
+ * @param levels The total number of gray code levels used
+ * @param level The current gray code level
+ * @param horizontalFlag Flag that should be true if the pattern is horizontal
  */
 void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag)
 {
@@ -120,6 +126,7 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
 
 /**
  * @brief Accessor for horizontal gray camera image
+ * @brief Horizontal gray pattern in camera frame
  */
 Mat ActiveStereoMap::getGrayH(void)
 {
@@ -128,6 +135,7 @@ Mat ActiveStereoMap::getGrayH(void)
 
 /**
  * @brief Accessor for vertical gray camera image
+ * @return Vertical gray pattern in camera frame
  */
 Mat ActiveStereoMap::getGrayV(void)
 {
@@ -144,7 +152,8 @@ Mat ActiveStereoMap::getGraymap(void)
 }
 
 /**
- * 
+ * @brief Accessor for projector horizontal gray pattern
+ * @return Horizontal gray pattern in projector frame
  */
 Mat ActiveStereoMap::getGrayProjH(void)
 {
@@ -152,7 +161,8 @@ Mat ActiveStereoMap::getGrayProjH(void)
 }
 
 /**
- * 
+ * @brief Accessor for projector vertical gray pattern
+ * @return Vertical gray pattern in projector frame
  */
 Mat ActiveStereoMap::getGrayProjV(void)
 {
@@ -206,7 +216,10 @@ int ActiveStereoMap::intPow(int base, unsigned int pow)
 }
 
 /**
- * 
+ * @brief Simple gray value filter
+ * @param src Source image
+ * @param graylvl Desired gray level to search for
+ * @return Filtered image with desired gray values at maximum value, all other pixels are 0
  */
 Mat ActiveStereoMap::grayFilter(Mat src, int graylvl)
 {
@@ -215,8 +228,10 @@ Mat ActiveStereoMap::grayFilter(Mat src, int graylvl)
   return outMat;
 }
 
-/*
- * 
+/**
+ * @brief Gray code to binary converter
+ * @param graylvl Gray code representation to convert from
+ * @return Binary representation of gray code value
  */
 unsigned int ActiveStereoMap::grayToBinary(unsigned int graylvl)
 {
@@ -237,3 +252,25 @@ Mat ActiveStereoMap::getWindow(int x, int y, int size)
   // Get ROI window centered around pixel 
   return window;
 }
+
+/**
+ * 
+ */
+ Vec2b ActiveStereoMap::findGrayCoordinates(int graylvlH, int graylvlV, int nlvls, Size mapSize)
+ {
+   Vec2b pcoord;
+   uint px, py;
+
+   return pcoord;
+ }
+ 
+/**
+ * @brief Displays a solid max value image on the projector
+ */
+ void ActiveStereoMap::showWhite(void)
+ {
+   Mat whiteMat = 255*Mat::ones(patternSize,CV_8UC1);
+   imshow("Projector",whiteMat);
+   moveWindow("Projector",1600,0);
+   cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+ }
