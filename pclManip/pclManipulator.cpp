@@ -9,6 +9,7 @@
 
 pclManipulator::pclManipulator()
 {
+  pptr = &p;
   applyMedian = true;
   applyRadOutRem = true;
   applyPassThrough = true;
@@ -52,14 +53,15 @@ void pclManipulator::initialize(cv::Mat disparityMap)
 void pclManipulator::filterPC()
 {
   PointCloud<PointNormal> tempPC;
+  PointCloud<PointNormal>::PointCloudConstPtr tempPtr = &tempPC;
   //Apply Median Filter
   if(applyMedian)
   {
     tempPC = PointCloud<PointNormal>(p);
     MedianFilter<PointNormal> m;
-    m.setInputCloud(tempPC);
-    m.setWindow(medianWindowSize);
-    m.applyFilter(p);
+    m.setInputCloud(tempPtr);
+    m.setWindowSize(medianWindowSize);
+    m.applyFilter(pptr);
     m.~MedianFilter<PointNormal>();
     filtered = true;
   }
@@ -69,10 +71,16 @@ void pclManipulator::filterPC()
     cout << "Warning: applying radius outlier removal filter on point cloud" << endl;
     cout << "This will cause the point cloud to become unordered!" << endl;
     RadiusOutlierRemoval<PointNormal> r(true);
-    r.setInputCloud(tempPC);
+    StatisticalOutlierRemoval<PointNormal> sor;
+    r.setInputCloud(tempPtr);
     r.setRadiusSearch(searchRadius);
     r.setMinNeighborsInRadius(minNeighbors);
-    r.applyFilter(p);
+    r.applyFilter(pptr);
+    sor.setInputCloud(pptr);
+    sor.setMeanK(50);
+    sor.setStddevMulThresh(1.0);
+    sor.applyFilter
+    
     filtered = true;
   }
   if(applyPassThrough)
@@ -83,7 +91,7 @@ void pclManipulator::filterPC()
     PassThrough<PointNormal> pt;
     pt.setFilterFieldName("z");
     pt.setFilterLimits(minZLimit,maxZLimit);
-    pt.applyFilter(p);
+    pt.applyFilter(pptr);
     filtered = true;
   }  
 }

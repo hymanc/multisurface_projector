@@ -218,9 +218,11 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/median_filter.hpp
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/passthrough.hpp
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/radius_outlier_removal.hpp
+CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/statistical_outlier_removal.hpp
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/median_filter.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/passthrough.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/radius_outlier_removal.h
+CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/filters/statistical_outlier_removal.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/for_each_type.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/impl/cloud_iterator.hpp
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/impl/pcl_base.hpp
