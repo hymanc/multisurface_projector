@@ -10,7 +10,7 @@
 #define VERTICAL 0
 #define HORIZONTAL 1
 
-#define PROJECTOR_W 848
+#define PROJECTOR_W 640
 #define PROJECTOR_H 480
 
 typedef unsigned int uint;
@@ -23,7 +23,6 @@ public:
   static uint getMinimumStripeWidth(Size imSize, uint nlvls);
 private:
   static void drawLine(Mat img, uint start, uint end, uint direction);
-  static void invertImage(Mat src, Mat dst);
 };
 
 #endif

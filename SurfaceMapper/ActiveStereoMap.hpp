@@ -7,9 +7,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "ProcGen.hpp"
-
-#define PROJECTOR_W 848
-#define PROJECTOR_H 480 
+#include "gray_lookup.hpp"
 
 using namespace cv;
 class ActiveStereoMap
@@ -44,10 +42,19 @@ private:
   Mat grayProjH;
   Mat grayProjV;
   
+  int numLevels;
+  
   uint stripeSize;
+  
+  int * hLUT;
+  int * vLUT;
+  
+  Rect roi;
   
   void processRawImage(Mat rawImg, Mat destImg, int thresh, int factor);
   void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag);
+  void generateGrayLuts(void);
+  void getPatternROI(Mat src, Mat dst);
   Mat getWindow(int x, int y, int size);
 };
 

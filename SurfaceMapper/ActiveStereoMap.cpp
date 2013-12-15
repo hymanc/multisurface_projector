@@ -31,8 +31,8 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   grayProjH  = Mat::zeros(patternSize,CV_16UC1);
   grayProjV  = Mat::zeros(patternSize,CV_16UC1);
   grayImg = Mat::zeros(streamSize,CV_16UC1);
-  grayH = Mat::zeros(streamSize,CV_16UC1);
-  grayV = Mat::zeros(streamSize,CV_16UC1);
+  grayH = Mat::zeros(patternSize,CV_16UC1);
+  grayV = Mat::zeros(patternSize,CV_16UC1);
   printf("Creating projector window at %dx%d\n",patternSize.width,patternSize.height);
   moveWindow("Projector",1600,0);
   cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
@@ -40,7 +40,13 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   imshow("Projector",filler);
   namedWindow("Camera",1);
   namedWindow("Process",1);
-
+  
+   int offset_x = 120;
+   int offset_y = 160;
+   int xsize = 1000;
+   int ysize = 750;
+  
+   roi = Rect(offset_x,offset_y,xsize,ysize);
 }
 
 /**
@@ -50,13 +56,14 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
 void ActiveStereoMap::runMapping(int levels)
 {
   int level;
+  numLevels = levels;
   stripeSize = ProcGen::getMinimumStripeWidth(patternSize, levels);
   Mat patMat  = Mat::zeros(patternSize, CV_16UC1);
   Mat tempPattern;
   Mat tempMat;
   waitKey(1200);
   cap >> tempMat;
-  imshow("Camera",tempMat);
+  //imshow("Camera",tempMat);
   for(level = 1; level <= levels; level++)
   {
     printf("Running scan at level %d\n",level);
@@ -67,6 +74,7 @@ void ActiveStereoMap::runMapping(int levels)
     //imshow("Projector", tempPattern);
     capturePattern(tempPattern, tempMat, levels, level, true);
   }
+  generateGrayLuts(); // Generate gray->binary lookup
 }
 
 /**
@@ -79,33 +87,48 @@ void ActiveStereoMap::runMapping(int levels)
  */
 void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag)
 {
-  Mat patMat;
-  imshow("Projector", tempPattern);
-  int multiplier;
+  Mat patMat, invPatMat; // 16bit patterns
+  Mat invTempPattern;	 // Inverted projector pattern (8bit)
+  Mat cam, invCam;       // Normal and inverted camera captures
   
-  tempPattern.convertTo(patMat, CV_16UC1, 1, 0);
-  //grayPattern += multiplier * intPow(2,levels-level) * (patMat/255);  
-
+  imshow("Projector", tempPattern);
+  bitwise_not(tempPattern, invTempPattern); // Generate inverted pattern
   //Mat tempMat;
-  Mat procMat = Mat::zeros(streamSize,CV_16UC1);
+  Mat procMat = Mat::zeros(Size(PROJECTOR_W,PROJECTOR_H),CV_16UC1);
   waitKey(600);//usleep(3000000);// sleep
+  int trash;
+  for(trash=0;trash<2;trash++) // Clear out frames
+    cap >> tempMat;
   cap >> tempMat;
-  cap >> tempMat; 
-  cap >> tempMat; // Multiple calls to clear out buffer (empirically...)
+  cam = tempMat(roi).clone();
+  imshow("Projector", invTempPattern);
+  waitKey(600);
+  for(trash=0;trash<2;trash++)
+    cap >> tempMat;
   cap >> tempMat;
-  processRawImage(tempMat, procMat, 100, intPow(2,levels-level));
-  imshow("Camera",tempMat);
-  //imshow("Process",procMat);
-  //printf("Size of grayImg %d x %d\n",grayImg.size().width, grayImg.size().height);
-  if(horizontalFlag)
+  invCam = tempMat(roi).clone();
+  
+  tempMat = cam-invCam; // Extract differential signal
+  processRawImage(tempMat, procMat, 20, intPow(2,levels-level));
+  //imshow("Camera",tempMat);
+  waitKey(50);
+  imshow("Process",65535*procMat);
+  tempPattern.convertTo(patMat, CV_16UC1, 1, 0);
+  invTempPattern.convertTo(invPatMat, CV_16UC1, 1, 0);
+  
+  // Resize to 640 x 480
+  resize(patMat,patMat,Size(PROJECTOR_W,PROJECTOR_H),0,0,INTER_NEAREST);
+  
+  // Store out to rolling buffer
+  int multiplier = intPow(2,levels-level);
+  if(horizontalFlag) // Check for buffer to put image into
   {
-    //grayImg += multiplier * procMat;
-    grayProjH += intPow(2,levels-level)*(patMat/255);
-    grayH += procMat;
+    grayProjH += multiplier*(patMat/255);
+    grayH += procMat; 
   }
-  else
+  else // Assume vertical
   {
-    grayProjV += intPow(2,levels-level)*(patMat/255);
+    grayProjV += multiplier*(patMat/255);
     grayV += procMat;
   }
 }
@@ -118,9 +141,32 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
 {
   Mat retMat;
   // TODO: everything in this function
-  //stereoRectify(
+  /*
+  Mat camMat, projMat
+  Mat cameraRectified, projRectified;
+  Mat dispToDepth; // 4x4 Disparity to depth mapping transform
+  stereoRectify(camMat, distCam, projMat, distProj, 
+		  Size(640,480),R,T,
+		  camRectified, projRectified, dispToDepth,
+		 CALIB_ZERO_DISPARITY, -1
   // Gray-filter camera image
   // Find distance to matching patch along epipolar line
+  */
+  /*
+  Vec2i grayLvl; // Current projector gray (row,col)
+  Vec2i backProjection; // Backprojected location
+  for(int y=0;y<grayH.size().height;y++)
+  {
+   for(int x=0;x<grayH.size().width;x++)
+   {
+     grayLvl[0] = grayProjH.at<int>(y,x);// Get projector pixel at (x,y)
+     grayLvl[1] = grayProjV.at<int>(y,x);
+     // Backproject pixel location into camera frame
+     // Search locally for matching gray region
+     // Compute disparity as euclidean distance between points or mark an unknown
+   }
+  }*/
+  
   return retMat;
 }
 
@@ -186,14 +232,16 @@ Mat ActiveStereoMap::getGrayComposite(void)
  */
 void ActiveStereoMap::processRawImage(Mat rawImg, Mat destImg, int thresh, int factor)
 {
-  Mat temp;
+  Mat temp, tempResize;
+  tempResize = Mat::zeros(Size(PROJECTOR_W,PROJECTOR_H),CV_8UC1);
   //Scalar scale = mean(rawImg)/8;
   cvtColor(rawImg, temp, CV_RGB2GRAY);
-  medianBlur(temp, temp, 5);
+  medianBlur(temp, temp, 3);
   threshold(temp, temp, thresh, 1 ,THRESH_BINARY);
-  temp.convertTo(destImg, CV_16UC1, 1, 0);
+  resize(temp,tempResize,Size(PROJECTOR_W,PROJECTOR_H),0,0,INTER_NEAREST);
+  tempResize.convertTo(destImg, CV_16UC1, 1, 0);
   destImg = factor * destImg;
-  //printf("Size of destImg %d x %d\n",destImg.size().width, destImg.size().height);
+  //printf("Size of tempImg %d x %d\n",tempResize.size().width, tempResize.size().height);
 }
 
 /**
@@ -264,6 +312,18 @@ Mat ActiveStereoMap::getWindow(int x, int y, int size)
    return pcoord;
  }
  
+ /**
+  * @brief Generates Gray->Row/Col lookup tables
+  * @param vImg Columnwise gray code pattern
+  * @param hImg Rowwise gray code pattern
+  */
+ void ActiveStereoMap::generateGrayLuts(void)
+ {
+   int maxGray = intPow(2,numLevels);
+   hLUT = get_row_LUT(grayProjH, maxGray);
+   vLUT = get_column_LUT(grayProjV, maxGray);
+ }
+ 
 /**
  * @brief Displays a solid max value image on the projector
  */
@@ -273,4 +333,19 @@ Mat ActiveStereoMap::getWindow(int x, int y, int size)
    imshow("Projector",whiteMat);
    moveWindow("Projector",1600,0);
    cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+ }
+ 
+ /**
+  * @brief Gets a rectangular ROI that matches the projector resolution
+  */
+ void ActiveStereoMap::getPatternROI(Mat src, Mat dst)
+ {
+   int offset_x = 120;
+   int offset_y = 160;
+   int xsize = 800;
+   int ysize = 600;
+   //dst = Mat::zeros(Size(xsize,ysize),CV_8UC1);
+   Rect roi(offset_x,offset_y,xsize,ysize);
+   dst = src(roi).clone(); 
+   printf("Destination size = %dx%d\n",dst.size().width,dst.size().height);
  }
