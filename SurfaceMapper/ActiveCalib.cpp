@@ -39,7 +39,7 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
       {
 	printf("Found checkerboard\n");
 	cornerSubPix(graycam, camCorners, Size(11,11), Size(-1,-1),TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER,30,0.1));
-	printPoints(camCorners);
+	//printPoints(camCorners);
       }
       // Draw over image
       drawChessboardCorners(cam, cboardSize, Mat(camCorners),foundCheckersFlag); 
@@ -78,16 +78,17 @@ vector<Vec2f> ActiveCal::backprojectPoints(Mat grayMapCamH, Mat grayMapCamV, Mat
   uint projX, projY;
   Scalar currentGrayH, currentGrayV;
   Vec2f pixCoord;
+  printf("Backprojecting Corners\n");
   for(it = 0; it < camCorners.size(); it++)
   {
     pixCoord = camCorners.at(it);
-    //imgX = roundf(pixCoord[0]);
-    //imgY = roundf(pixCoord[1]);
+    imgY = (int) (pixCoord[0] + 0.5);
+    imgX = (int) (pixCoord[1] + 0.5);
     currentGrayH = grayMapCamH.at<float>(pixCoord[0],pixCoord[1]);// Find gray value at corner location
     currentGrayV = grayMapCamV.at<float>(pixCoord[0],pixCoord[1]);
     projX = ActiveStereoMap::grayToBinary(currentGrayV[0]); // Convert to index in projector frame
     projY = ActiveStereoMap::grayToBinary(currentGrayH[0]);
-    //printf("Gray Level is %d at %d,%d\n",currentGray,imgx,imgy);
+    printf("Gray Level is %d,%d at %d,%d\n",(int)currentGrayH[0],(int)currentGrayV[0],imgX,imgY);
     
     //ActiveCal::grayToBinary(currentGray);
     // Find corresponding gray value in projector map and save point 
