@@ -267,6 +267,7 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o
  /usr/include/pcl-1.7/pcl/search/organized.h
  /usr/include/pcl-1.7/pcl/search/pcl_search.h
  /usr/include/pcl-1.7/pcl/search/search.h
+ /usr/include/qhull/io.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /home/jakob/EECS442/project/pclManip/pclManipulator.cpp
  /home/jakob/EECS442/project/pclManip/pclManipulator.hpp
@@ -472,6 +473,7 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/pcl-1.7/pcl/common/point_tests.h
  /usr/include/pcl-1.7/pcl/common/projection_matrix.h
  /usr/include/pcl-1.7/pcl/common/time.h
+ /usr/include/pcl-1.7/pcl/compression/organized_pointcloud_conversion.h
  /usr/include/pcl-1.7/pcl/console/print.h
  /usr/include/pcl-1.7/pcl/conversions.h
  /usr/include/pcl-1.7/pcl/correspondence.h
@@ -484,15 +486,20 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/pcl-1.7/pcl/filters/impl/median_filter.hpp
  /usr/include/pcl-1.7/pcl/filters/impl/passthrough.hpp
  /usr/include/pcl-1.7/pcl/filters/impl/radius_outlier_removal.hpp
+ /usr/include/pcl-1.7/pcl/filters/impl/statistical_outlier_removal.hpp
  /usr/include/pcl-1.7/pcl/filters/median_filter.h
  /usr/include/pcl-1.7/pcl/filters/passthrough.h
  /usr/include/pcl-1.7/pcl/filters/radius_outlier_removal.h
+ /usr/include/pcl-1.7/pcl/filters/statistical_outlier_removal.h
  /usr/include/pcl-1.7/pcl/for_each_type.h
  /usr/include/pcl-1.7/pcl/impl/cloud_iterator.hpp
  /usr/include/pcl-1.7/pcl/impl/pcl_base.hpp
  /usr/include/pcl-1.7/pcl/impl/point_types.hpp
  /usr/include/pcl-1.7/pcl/io/boost.h
  /usr/include/pcl-1.7/pcl/io/file_io.h
+ /usr/include/pcl-1.7/pcl/io/impl/pcd_io.hpp
+ /usr/include/pcl-1.7/pcl/io/lzf.h
+ /usr/include/pcl-1.7/pcl/io/pcd_io.h
  /usr/include/pcl-1.7/pcl/io/ply/byte_order.h
  /usr/include/pcl-1.7/pcl/io/ply/io_operators.h
  /usr/include/pcl-1.7/pcl/io/ply/ply.h
@@ -527,3 +534,4 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/pcl-1.7/pcl/search/organized.h
  /usr/include/pcl-1.7/pcl/search/pcl_search.h
  /usr/include/pcl-1.7/pcl/search/search.h
+ /usr/include/qhull/io.h
