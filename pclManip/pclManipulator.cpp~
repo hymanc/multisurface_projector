@@ -9,7 +9,8 @@
 
 pclManipulator::pclManipulator()
 {
-  pptr = &p;
+  PointCloud<PointXYZINormal>::Ptr temp (new PointCloud<PointXYZINormal>);
+  pptr = temp;
   applyMedian = true;
   applyRadOutRem = true;
   applyPassThrough = true;
@@ -31,7 +32,7 @@ if(stat(fileName.c_str(),&buf)!=-1)
   cerr << "No data will be loaded" << endl;
 }
 else
-  io::loadPLYFile(fileName,p);
+  io::loadPLYFile(fileName,*pptr);
 }
 
 void pclManipulator::initialize(cv::Mat disparityMap)
@@ -46,52 +47,53 @@ void pclManipulator::initialize(cv::Mat disparityMap)
       row = vector<float>(pointer,pointer+disparityMap.cols);
       v.insert(v.end(),row.begin(),row.end());
     }
-    io::OrganizedConversion<PointNormal,false> OC;      
-    OC.convert(v, , ,s.width,s.height,1,p);
+    io::OrganizedConversion<PointXYZINormal,false> OC;   
+    std::vector<uint8_t> temp;
+    OC.convert(v,temp,false,s.width,s.height,1,*pptr);
 }
     
 void pclManipulator::filterPC()
 {
-  PointCloud<PointNormal> tempPC;
-  PointCloud<PointNormal>::Ptr tempPtr(tempPc);
   //Apply Median Filter
   if(applyMedian)
   {
-    tempPC = PointCloud<PointNormal>(p);
-    MedianFilter<PointNormal> m;
+    PointCloud<PointXYZINormal>::Ptr tempPtr(new PointCloud<PointXYZINormal>(*pptr));
+    MedianFilter<PointXYZINormal> m;
     m.setInputCloud(tempPtr);
     m.setWindowSize(medianWindowSize);
-    m.applyFilter(pptr);
-    m.~MedianFilter<PointNormal>();
+    m.filter(*pptr);
+    m.~MedianFilter<PointXYZINormal>();
     filtered = true;
   }
   if(applyRadOutRem)
   {
-    tempPC = PointCloud<PointNormal>(p);
+    PointCloud<PointXYZINormal>::Ptr tempPtr(new PointCloud<PointXYZINormal>(*pptr));
     cout << "Warning: applying radius outlier removal filter on point cloud" << endl;
     cout << "This will cause the point cloud to become unordered!" << endl;
-    RadiusOutlierRemoval<PointNormal> r(true);
-    StatisticalOutlierRemoval<PointNormal> sor;
+    RadiusOutlierRemoval<PointXYZINormal> r(true);
+    StatisticalOutlierRemoval<PointXYZINormal> sor;
     r.setInputCloud(tempPtr);
     r.setRadiusSearch(searchRadius);
     r.setMinNeighborsInRadius(minNeighbors);
-    r.applyFilter(pptr);
+    r.filter(*pptr);
     sor.setInputCloud(pptr);
     sor.setMeanK(50);
     sor.setStddevMulThresh(1.0);
-    sor.applyFilter
-    
+    sor.filter(*pptr);
+    r.~RadiusOutlierRemoval<PointXYZINormal>();
+    sor.~StatisticalOutlierRemoval<PointXYZINormal>();
     filtered = true;
   }
   if(applyPassThrough)
   {
-    tempPC = PointCloud<PointNormal>(p);
+    PointCloud<PointXYZINormal>::Ptr tempPtr(new PointCloud<PointXYZINormal>(*pptr));
     cout << "Warning: applying passThrough filter on point cloud" << endl;
     cout << "This will cause the point cloud to become unordered!" << endl;   
-    PassThrough<PointNormal> pt;
+    PassThrough<PointXYZINormal> pt;
     pt.setFilterFieldName("z");
     pt.setFilterLimits(minZLimit,maxZLimit);
-    pt.applyFilter(pptr);
+    pt.filter(*pptr);
+    pt.~PassThrough<PointXYZINormal>();
     filtered = true;
   }  
 }
@@ -99,13 +101,13 @@ void pclManipulator::filterPC()
  void pclManipulator::saveToFile(int fileType, const string & fileName)
 {
   if(fileType==1)
-    io::savePLYFile(fileName,p);
+    io::savePLYFile(fileName,*pptr);
   else if(fileType==2)
-    io::savePCDFile(fileName,p);
+    io::savePCDFile(fileName,*pptr);
   else
     cerr << "ERROR: fileType not recognized "     \
          << endl << "Use 1 to save as PLY file "  \
-         << endl << "Use 2 to save as PCD file " <<< endl;
+         << endl << "Use 2 to save as PCD file " << endl;
 }
 
 void pclManipulator::setApplyMedian(bool in)

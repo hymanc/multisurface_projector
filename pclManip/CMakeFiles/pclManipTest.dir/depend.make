@@ -266,6 +266,7 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/search/
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/search/organized.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/search/pcl_search.h
 CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/pcl-1.7/pcl/search/search.h
+CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o: /usr/include/qhull/io.h
 
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: pclManipulator.cpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: pclManipulator.hpp
@@ -471,6 +472,7 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/commo
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/common/point_tests.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/common/projection_matrix.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/common/time.h
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/compression/organized_pointcloud_conversion.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/console/print.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/conversions.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/correspondence.h
@@ -483,15 +485,20 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filte
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/median_filter.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/passthrough.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/radius_outlier_removal.hpp
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/impl/statistical_outlier_removal.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/median_filter.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/passthrough.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/radius_outlier_removal.h
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/filters/statistical_outlier_removal.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/for_each_type.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/impl/cloud_iterator.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/impl/pcl_base.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/impl/point_types.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/boost.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/file_io.h
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/impl/pcd_io.hpp
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/lzf.h
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/pcd_io.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/ply/byte_order.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/ply/io_operators.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/io/ply/ply.h
@@ -526,4 +533,5 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/searc
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/search/organized.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/search/pcl_search.h
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/pcl-1.7/pcl/search/search.h
+CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o: /usr/include/qhull/io.h
 

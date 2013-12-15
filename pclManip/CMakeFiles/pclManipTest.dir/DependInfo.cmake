@@ -14,6 +14,7 @@ SET(CMAKE_TARGET_DEFINITIONS
   "EIGEN_USE_NEW_STDVECTOR"
   "EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET"
   "FLANN_STATIC"
+  "qh_QHpointer"
   )
 
 # Targets to which this target links.
