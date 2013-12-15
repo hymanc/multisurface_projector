@@ -1,18 +1,4 @@
-/**
- * @file Drawing_1.cpp
- * @brief Simple sample code
- */
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/nonfree/features2d.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/opencv.hpp>
-#include <stdio.h>
-#include <iostream>
-
-// #define SPACE_KEY 32
-// #define ESC_KEY 27
+#include "gray_lookup.hpp"
 
 using namespace cv;
 using namespace std;
@@ -32,7 +18,7 @@ int * get_column_LUT(Mat v_projected){
 	int column = 0;
     
     //a gray value that is guaranteed to trigger indexing the first column
-	int gray = ~(v_projected.at<int>(0,0));
+	int gray = ~(v_projected.at<uchar>(0,0));
     
 	for(int x = 0; x < v_projected.size().width; x++){
         int val = v_projected.at<uchar>(0,x);
@@ -60,7 +46,7 @@ int * get_row_LUT(Mat h_projected){
 	int row = 0;
     
     //a gray value that is guaranteed to trigger indexing the first row
-	int gray = ~(h_projected.at<int>(0,0));
+	int gray = ~(h_projected.at<uchar>(0,0));
 
 	for(int y = 0; y < h_projected.size().height; y++){
         int val = h_projected.at<uchar>(y,0);
