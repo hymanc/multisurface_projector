@@ -12,6 +12,7 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/compression/organized_pointcloud_conversion.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 
 using namespace pcl;
@@ -50,6 +51,7 @@ public:
 
 private:
   PointCloud<PointNormal> p;
+  PointCloud<PointNormal>::PointCloudConstPtr pptr;
   bool applyMedian;
   bool applyRadOutRem;
   bool applyPassThrough;

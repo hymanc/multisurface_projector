@@ -34,20 +34,22 @@ int main(int argc, char ** argv)
   ActiveCal *cal = new ActiveCal;
   cal->calibrate(&calVals, cap, Size(15,11),14,14,8,3);
   
-  /*
+  
   ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));
   smapper->runMapping(atoi(argv[2]));
- 
-  Mat gray = smapper->getGraymap()/2;
-  Mat grayPat = smapper->getGrayComposite()/2;
-  gray.convertTo(gray,CV_8UC1,1,0);
-  grayPat.convertTo(grayPat, CV_8UC1, 1, 0);
-
+  
+  Mat grayhorz = smapper->getGrayH();
+  Mat grayvert = smapper->getGrayV();
+  Mat grayPatH = smapper->getGrayProjH();
+  Mat grayPatV = smapper->getGrayProjV();
+  grayhorz.convertTo(grayhorz,CV_8UC1,1,0);
+  grayPatH.convertTo(grayPatH, CV_8UC1, 1, 0);
+  //inRange(grayPatH,58,58,grayPatH);
   namedWindow("Graymap",1);
-  imshow("Graymap",gray);
+  imshow("Graymap",grayhorz);
   namedWindow("GrayPattern",1);
-  imshow("GrayPattern",grayPat);
+  imshow("GrayPattern",grayPatH);
   waitKey(0);
-  */
+  
   return 0;
 }

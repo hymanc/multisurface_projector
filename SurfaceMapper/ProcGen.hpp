@@ -20,8 +20,10 @@ class ProcGen
 {
 public:
   static Mat getPattern(Size imSize, uint level, uint direction, bool inverted);
+  static uint getMinimumStripeWidth(Size imSize, uint nlvls);
 private:
   static void drawLine(Mat img, uint start, uint end, uint direction);
+  static void invertImage(Mat src, Mat dst);
 };
 
 #endif
