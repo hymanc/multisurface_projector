@@ -27,7 +27,6 @@ int * get_column_LUT(Mat v_projected, int maxGray){
             column_lut[gray] = ++column;
         }
     }
-    
     return column_lut;
 }
 

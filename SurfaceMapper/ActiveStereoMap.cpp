@@ -41,10 +41,10 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   namedWindow("Camera",1);
   namedWindow("Process",1);
   
-   int offset_x = 120;
-   int offset_y = 160;
-   int xsize = 1000;
-   int ysize = 750;
+   int offset_x = ROI_X_OFFSET; //100;
+   int offset_y = ROI_Y_OFFSET; //100;
+   int xsize = ROI_WIDTH; //800;  // ROI size
+   int ysize = ROI_HEIGHT; //600;
   
    roi = Rect(offset_x,offset_y,xsize,ysize);
 }
@@ -91,9 +91,9 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   Mat invTempPattern;	 // Inverted projector pattern (8bit)
   Mat cam, invCam;       // Normal and inverted camera captures
   
+  // Get normal pattern and do a few other things in the meantime
   imshow("Projector", tempPattern);
   bitwise_not(tempPattern, invTempPattern); // Generate inverted pattern
-  //Mat tempMat;
   Mat procMat = Mat::zeros(Size(PROJECTOR_W,PROJECTOR_H),CV_16UC1);
   waitKey(600);//usleep(3000000);// sleep
   int trash;
@@ -101,6 +101,8 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
     cap >> tempMat;
   cap >> tempMat;
   cam = tempMat(roi).clone();
+  
+  // Get Inverted Pattern
   imshow("Projector", invTempPattern);
   waitKey(600);
   for(trash=0;trash<2;trash++)
@@ -109,7 +111,7 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   invCam = tempMat(roi).clone();
   
   tempMat = cam-invCam; // Extract differential signal
-  processRawImage(tempMat, procMat, 20, intPow(2,levels-level));
+  processRawImage(tempMat, procMat, 15, intPow(2,levels-level));
   //imshow("Camera",tempMat);
   waitKey(50);
   imshow("Process",65535*procMat);
@@ -145,11 +147,13 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
   Mat camMat, projMat
   Mat cameraRectified, projRectified;
   Mat dispToDepth; // 4x4 Disparity to depth mapping transform
+  
   stereoRectify(camMat, distCam, projMat, distProj, 
 		  Size(640,480),R,T,
 		  camRectified, projRectified, dispToDepth,
 		 CALIB_ZERO_DISPARITY, -1
-  // Gray-filter camera image
+		 
+  
   // Find distance to matching patch along epipolar line
   */
   /*
@@ -222,6 +226,15 @@ Mat ActiveStereoMap::getGrayProjV(void)
 Mat ActiveStereoMap::getGrayComposite(void)
 {
     return grayPattern;
+}
+
+/**
+ * @brief Accessor for projector pattern resolution
+ * @return Projector pattern Cv::Size
+ */
+Size ActiveStereoMap::getPatternSize(void)
+{
+  return patternSize;
 }
 
 /**
@@ -327,25 +340,19 @@ Mat ActiveStereoMap::getWindow(int x, int y, int size)
 /**
  * @brief Displays a solid max value image on the projector
  */
- void ActiveStereoMap::showWhite(void)
+ void ActiveStereoMap::showWhite(uchar brightness)
  {
-   Mat whiteMat = 255*Mat::ones(patternSize,CV_8UC1);
+   Mat whiteMat = brightness*Mat::ones(patternSize,CV_8UC1);
    imshow("Projector",whiteMat);
    moveWindow("Projector",1600,0);
    cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
  }
- 
+
  /**
-  * @brief Gets a rectangular ROI that matches the projector resolution
   */
- void ActiveStereoMap::getPatternROI(Mat src, Mat dst)
- {
-   int offset_x = 120;
-   int offset_y = 160;
-   int xsize = 800;
-   int ysize = 600;
-   //dst = Mat::zeros(Size(xsize,ysize),CV_8UC1);
-   Rect roi(offset_x,offset_y,xsize,ysize);
-   dst = src(roi).clone(); 
-   printf("Destination size = %dx%d\n",dst.size().width,dst.size().height);
- }
+void ActiveStereoMap::printGrayHSize(void)
+{
+  printf("grayH actual size is %dx%d\n",grayH.size().width,grayH.size().height);
+  uint grayVal = grayH.at<short>(220,220);
+  printf("Gray Val: %d\n",grayVal);
+}
