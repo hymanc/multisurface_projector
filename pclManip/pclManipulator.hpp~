@@ -1,7 +1,7 @@
 #ifndef PCL_MANIPULATOR_H
 #define PCL_MANIPULATOR_H
 
-//#define PCL_NO_PRECOMPILE
+#define PCL_NO_PRECOMPILE
 
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
@@ -9,15 +9,25 @@
 #include <vector>
 
 #include <pcl/point_types.h>
+#include <pcl/compression/organized_pointcloud_conversion.h>
+#include <pcl/pcl_base.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/surface/gp3.h>
+
+#include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/obj_io.h>
+
 #include <pcl/filters/filter.h>
 #include <pcl/filters/median_filter.h>
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/passthrough.h>
-#include <pcl/io/ply_io.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/compression/organized_pointcloud_conversion.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/pcl_base.h>
+
+#include <pcl/surface/vtk_smoothing/vtk_mesh_smoothing_laplacian.h>
+#include <pcl/surface/processing.h>
+
 
 using namespace pcl;
 using namespace std;
@@ -26,27 +36,32 @@ class pclManipulator
 {
 public:
   pclManipulator();
+  ~pclManipulator();
   void initialize(const string & fileName);
   void initialize(cv::Mat disparityMap);
   void filterPC();
-    //RadiusOutlierRemoval
-    //PassThrough
-    //BilateralFilter
   void saveToFile(int fileType, const string & fileName);
+  void generateMesh();
+  void saveMesh(const string & fileName);
+  void smoothMesh(int numIter);
+  
 
   //Set Functions
   void setApplyMedian(bool in);
   void setApplyRadOutRem(bool in);
+  void setApplyStatOutRem(bool in);
   void setApplyPassThrough(bool in);
   void setMedianWindowSize(int winSize);
   void setSearchRadius(double rad);
   void setMinNeighbors(int nM);
   void setZLimits(double min, double max);
+  void setStatParams(double mean, double stdDev);
 
   //Get Functions 
-  bool getApplyMedian(bool in);
-  bool getApplyRadOutRem(bool in);
-  bool getApplyPassThrough(bool in);
+  bool getApplyMedian();
+  bool getApplyRadOutRem();
+  bool getApplyStatOutRem();
+  bool getApplyPassThrough();
   int getMedianWindowSize(int winSize);
   bool isFiltered();
   double getSearchRadius();
@@ -54,16 +69,25 @@ public:
   //array<double,2> getZLimits();
 
 private:
-  PointCloud<PointXYZINormal>::Ptr pptr;
+  PointCloud<PointNormal>::Ptr pptr;
+  PolygonMesh::Ptr pmesh;
   bool applyMedian;
   bool applyRadOutRem;
   bool applyPassThrough;
-  int medianWindowSize;
+  bool applyStatOutRem;
   bool filtered;
+  bool cloudReady;
+  bool meshGenerated;
   double searchRadius;
   int minNeighbors;
+  int medianWindowSize;
   double minZLimit;
   double maxZLimit;
+  double statOutMean;
+  double statOutStdDev;  
+
+  void printUpdate(const string & filter, int oldSize);
+
 };
 
 #endif

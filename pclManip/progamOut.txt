@@ -1,0 +1,35 @@
+Warning: applying radius outlier removal filter on point cloud
+This will cause the point cloud to become unordered!
+Radius Outlier Removal filter has been applied to point cloud.
+1943 Points have been removed.
+Point Cloud now has 21704 points.
+points[]: 21704
+width: 21704
+height: 1
+is_dense: 0
+sensor origin (xyz): [0, 0, 0] / orientation (xyzw): [0.5, 0, 0, 0]
+
+points[]: 21704
+width: 21704
+height: 1
+is_dense: 0
+sensor origin (xyz): [0, 0, 0] / orientation (xyzw): [0.5, 0, 0, 0]
+
+points[]: 21704
+width: 21704
+height: 1
+is_dense: 0
+sensor origin (xyz): [0, 0, 0] / orientation (xyzw): [0.5, 0, 0, 0]
+
+points[]: 21704
+width: 21704
+height: 1
+is_dense: 0
+sensor origin (xyz): [0, 0, 0] / orientation (xyzw): [0.5, 0, 0, 0]
+
+Statistical Outlier Removal filter has been applied to point cloud.
+2793 Points have been removed.
+Point Cloud now has 18911 points.
+2 filters have been applied to the point cloud. 
+Successfully exited filterPC() function! YAY!
+Successfully exited saveToFile() function! YAY!
