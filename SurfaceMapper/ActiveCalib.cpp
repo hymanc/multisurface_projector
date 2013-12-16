@@ -170,6 +170,8 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
   printf("Rectifying images\n");
   Mat rectifiedCam, rectifiedProj;
   Mat gv, gpv;
+  //gv = imread("norris_2.jpg", CV_LOAD_IMAGE_COLOR);
+  //gpv = gv.clone();
   map->getGrayV().convertTo(gv, CV_8UC1);
   map->getGrayProjV().convertTo(gpv, CV_8UC1);
   
@@ -185,6 +187,14 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
   waitKey(0);
   
   return true;
+}
+
+/**
+ * 
+ */
+void ActiveCal::calMapping(void)
+{
+  
 }
 
 /**

@@ -25,6 +25,7 @@ class ActiveCal
 {
 public:
   bool calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float sqWidth, float sqHeight, int lvls, int ncals);
+  void calMapping(void);
   bool saveCalPointsToFile(vector<vector<Vec3f> > objSet, vector<vector<Vec2f> > camSet, vector<vector<Vec2f> > projSet);
   bool readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vector<Vec2f> > camSet, vector<vector<Vec2f> > projSet);
   cal_set * getCals(void);
