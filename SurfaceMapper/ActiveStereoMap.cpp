@@ -95,23 +95,23 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   imshow("Projector", tempPattern);
   bitwise_not(tempPattern, invTempPattern); // Generate inverted pattern
   Mat procMat = Mat::zeros(Size(PROJECTOR_W,PROJECTOR_H),CV_16UC1);
-  waitKey(600);//usleep(3000000);// sleep
+  waitKey(900);//usleep(3000000);// sleep
   int trash;
-  for(trash=0;trash<2;trash++) // Clear out frames
+  for(trash=0;trash<3;trash++) // Clear out frames
     cap >> tempMat;
   cap >> tempMat;
   cam = tempMat(roi).clone();
   
   // Get Inverted Pattern
   imshow("Projector", invTempPattern);
-  waitKey(600);
-  for(trash=0;trash<2;trash++)
+  waitKey(900);
+  for(trash=0;trash<3;trash++)
     cap >> tempMat;
   cap >> tempMat;
   invCam = tempMat(roi).clone();
   
   tempMat = cam-invCam; // Extract differential signal
-  processRawImage(tempMat, procMat, 15, intPow(2,levels-level));
+  processRawImage(tempMat, procMat, 10, intPow(2,levels-level));
   //imshow("Camera",tempMat);
   waitKey(50);
   imshow("Process",65535*procMat);
@@ -171,6 +171,39 @@ Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
    }
   }*/
   
+  cal_set * cals; // = ActiveCalgetCals();
+  Mat Rstereo, Tstereo, Estereo, Fstereo;
+  Mat rectCam, rectProj;
+  Mat rectRProj, rectRCam, rectPProj, rectPCam, rectQ;
+  printf("Computing stereo rectification\n");
+  stereoRectify(cals->MProj, cals->DistProj, cals->MCam, cals->DistCam,
+		patternSize,
+		Rstereo, Tstereo, rectRProj, rectRCam, 
+		rectPProj, rectPCam, rectQ,
+		CALIB_ZERO_DISPARITY,
+		-1, patternSize, 0, 0);
+  
+  Mat newCamMat, newProjMat;
+  Mat camMap[2], projMap[2];
+  // Generate undistortion maps
+  printf("Generating undistorting maps\n");
+  initUndistortRectifyMap(cals->MProj, cals->DistProj, rectRProj,
+			  newProjMat, patternSize,
+			  CV_32FC1,
+			  projMap[0], projMap[1]);
+  
+  initUndistortRectifyMap(cals->MCam, cals->DistCam, rectRCam, 
+			  newCamMat , patternSize,
+			  CV_32FC1,
+			  camMap[0], camMap[1]);
+  
+  printf("Rectifying images\n");
+  Mat rectifiedGrayProjH, rectifiedGrayProjV, rectifiedGrayH, rectifiedGrayV;
+  remap(grayV,rectifiedGrayV,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  remap(grayH,rectifiedGrayH,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  remap(grayProjV,rectifiedGrayProjV,projMap[0], projMap[1], CV_INTER_NN, BORDER_CONSTANT,0);
+  remap(grayProjH,rectifiedGrayProjH,projMap[0], projMap[1], CV_INTER_NN, BORDER_CONSTANT,0);
+
   return retMat;
 }
 

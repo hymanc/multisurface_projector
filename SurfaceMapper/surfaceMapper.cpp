@@ -8,7 +8,7 @@ using namespace cv;
 using namespace std;
 int main(int argc, char ** argv)
 {
-  if(argc < 3)
+  if(argc < 4)
   {
     printf("Invalid number of input arguments\n");
     return -1;
@@ -39,7 +39,17 @@ int main(int argc, char ** argv)
   }
   cal_set calVals;
   ActiveCal *cal = new ActiveCal;
-  cal->calibrate(&calVals, cap, Size(8,6),14,14,atoi(argv[2]),8);
+  int calRuns = atoi(argv[3]);
+  if(calRuns > 0)
+  {
+    cal->calibrate(&calVals, cap, Size(8,6),14,14,atoi(argv[2]),calRuns);
+  }
+  else
+  {
+    vector<vector <Vec3f> > obj;
+    vector<vector <Vec2f> > c,p;
+    cal->readCalPointsFromFile(obj,c,p);
+  }
   
   
   //ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));

@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include "ProcGen.hpp"
 #include "gray_lookup.hpp"
+#include "ActiveCalib.hpp"
 
 #define ROI_WIDTH 880
 #define ROI_HEIGHT 660
