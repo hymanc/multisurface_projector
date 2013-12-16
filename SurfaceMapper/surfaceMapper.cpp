@@ -20,35 +20,41 @@ int main(int argc, char ** argv)
   }
   else
   {
-      cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
-      cap.set(CV_CAP_PROP_FRAME_HEIGHT,600);
- 
+    //960x720
+      cap.set(CV_CAP_PROP_FRAME_WIDTH, 1600);
+      cap.set(CV_CAP_PROP_FRAME_HEIGHT,1200);
+      
+      double xrescheck = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+      double yrescheck = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
       cap.set(CV_CAP_PROP_GAIN, 0.6);
       //cap.set(CV_CAP_PROP_EXPOSURE, 0.5882);
-      cap.set(CV_CAP_PROP_BRIGHTNESS, 0.39);
-      cap.set(CV_CAP_PROP_CONTRAST, 0.1294);
+      cap.set(CV_CAP_PROP_BRIGHTNESS, 0.5);
+      cap.set(CV_CAP_PROP_CONTRAST, 0.2);
       //cap.set(CV_CAP_PROP_GAIN, 0.7843);
-      cap.set(CV_CAP_PROP_FPS, 15.0);
+      cap.set(CV_CAP_PROP_FPS, 5);
+      
+      double fps = cap.get(CV_CAP_PROP_FPS);
+      printf("Camera resolution set to %dx%d\n",(int)xrescheck,(int)yrescheck);
+      printf("%d FPS\n",(int)fps);
   }
   cal_set calVals;
   ActiveCal *cal = new ActiveCal;
-  cal->calibrate(&calVals, cap, Size(15,11),14,14,8,3);
+  cal->calibrate(&calVals, cap, Size(8,6),14,14,atoi(argv[2]),8);
   
   
-  ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));
-  smapper->runMapping(atoi(argv[2]));
-  
+  //ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));
+  //smapper->runMapping(atoi(argv[2]));
+  /*
   Mat grayhorz = smapper->getGrayH();
   Mat grayvert = smapper->getGrayV();
-  Mat grayPatH = smapper->getGrayProjH();
-  Mat grayPatV = smapper->getGrayProjV();
-  grayhorz.convertTo(grayhorz,CV_8UC1,1,0);
-  grayPatH.convertTo(grayPatH, CV_8UC1, 1, 0);
-  //inRange(grayPatH,58,58,grayPatH);
+  Mat grayPatH = smapper->getGrayProjH()/2;
+  Mat grayPatV = smapper->getGrayProjV()/2;
+  grayvert.convertTo(grayvert,CV_8UC1,1,0);
+  grayPatV.convertTo(grayPatV, CV_8UC1, 1, 0);
   namedWindow("Graymap",1);
-  imshow("Graymap",grayhorz);
+  imshow("Graymap",grayvert);
   namedWindow("GrayPattern",1);
-  imshow("GrayPattern",grayPatH);
+  imshow("GrayPattern",grayPatV);*/
   waitKey(0);
   
   return 0;

@@ -7,9 +7,12 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "ProcGen.hpp"
+#include "gray_lookup.hpp"
 
-#define PROJECTOR_W 848
-#define PROJECTOR_H 480 
+#define ROI_WIDTH 880
+#define ROI_HEIGHT 660
+#define ROI_X_OFFSET 80
+#define ROI_Y_OFFSET 80
 
 using namespace cv;
 class ActiveStereoMap
@@ -26,11 +29,12 @@ public:
   Mat getGrayProjV(void);
   Mat getGrayComposite(void);
   Mat grayFilter(Mat src, int graylvl);
+  Size getPatternSize(void);
   static unsigned int grayToBinary(unsigned int graylvl);
   static Vec2b findGrayCoordinates(int graylvlH, int graylvlV, int nlvls, Size mapSize);
   static int intPow(int base, unsigned int power);
-  void showWhite(void);
-  
+  void showWhite(uchar brightness);
+  void printGrayHSize(void);
 private:
   VideoCapture cap;
   Size patternSize;
@@ -44,10 +48,18 @@ private:
   Mat grayProjH;
   Mat grayProjV;
   
+  int numLevels;
+  
   uint stripeSize;
+  
+  int * hLUT;
+  int * vLUT;
+  
+  Rect roi;
   
   void processRawImage(Mat rawImg, Mat destImg, int thresh, int factor);
   void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag);
+  void generateGrayLuts(void);
   Mat getWindow(int x, int y, int size);
 };
 

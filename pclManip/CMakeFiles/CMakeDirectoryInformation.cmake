@@ -12,8 +12,9 @@ SET(CMAKE_FORCE_UNIX_PATHS 1)
 SET(CMAKE_C_INCLUDE_PATH
   "/usr/include/vtk-5.8"
   "/usr/include/pcl-1.7"
-  "/usr/include/openni"
   "/usr/include/eigen3"
+  "/usr/include/qhull"
+  "/usr/include/openni"
   )
 SET(CMAKE_CXX_INCLUDE_PATH ${CMAKE_C_INCLUDE_PATH})
 SET(CMAKE_Fortran_INCLUDE_PATH ${CMAKE_C_INCLUDE_PATH})

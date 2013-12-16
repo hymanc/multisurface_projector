@@ -1,11 +1,15 @@
 #ifndef PCL_MANIPULATOR_H
 #define PCL_MANIPULATOR_H
 
+#define PCL_NO_PRECOMPILE
+
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
 #include <sys/stat.h>
 #include <vector>
 
+#include <pcl/point_types.h>
+#include <pcl/filters/filter.h>
 #include <pcl/filters/median_filter.h>
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/passthrough.h>
@@ -13,7 +17,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/compression/organized_pointcloud_conversion.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-
+#include <pcl/pcl_base.h>
 
 using namespace pcl;
 using namespace std;
@@ -50,8 +54,7 @@ public:
   //array<double,2> getZLimits();
 
 private:
-  PointCloud<PointNormal> p;
-  PointCloud<PointNormal>::PointCloudConstPtr pptr;
+  PointCloud<PointXYZINormal>::Ptr pptr;
   bool applyMedian;
   bool applyRadOutRem;
   bool applyPassThrough;
