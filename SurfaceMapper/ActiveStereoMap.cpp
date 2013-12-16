@@ -111,7 +111,7 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   invCam = tempMat(roi).clone();
   
   tempMat = cam-invCam; // Extract differential signal
-  processRawImage(tempMat, procMat, 10, intPow(2,levels-level));
+  processRawImage(tempMat, procMat, 5, intPow(2,levels-level));
   //imshow("Camera",tempMat);
   waitKey(50);
   imshow("Process",65535*procMat);

@@ -89,12 +89,16 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
   } 
   
   vector<Vec2f> pcorners = projCorners.back();
-  Mat qq;
+  vector<Vec2f> ccorners = camCorners.back();
+  Mat qq, rr;
+  map->getGrayV().convertTo(rr,CV_8UC1);
   map->getGrayProjV().convertTo(qq,CV_8UC1);
+  drawChessboardCorners(rr,cboardSize,Mat(ccorners),true);
   drawChessboardCorners(qq,cboardSize,Mat(pcorners),true);
   
   namedWindow("Projector Corners",1);
   imshow("Projector Corners",qq);
+  imshow("Preview",rr);
   saveCalPointsToFile(objCornersGroup, camCorners, projCorners);
   
   Mat camMat, distCam, projMat, distProj;
@@ -165,8 +169,12 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
   
   printf("Rectifying images\n");
   Mat rectifiedCam, rectifiedProj;
-  remap(map->getGrayV(),rectifiedCam,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
-  remap(map->getGrayProjV(),rectifiedProj,projMap[0],projMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  Mat gv, gpv;
+  map->getGrayV().convertTo(gv, CV_8UC1);
+  map->getGrayProjV().convertTo(gpv, CV_8UC1);
+  
+  remap(qq,rectifiedCam,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  remap(rr,rectifiedProj,projMap[0],projMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
   
   printf("Displaying rectified images\n");
   namedWindow("Rectified Camera",1);
@@ -205,14 +213,14 @@ vector<Vec2f> ActiveCal::backprojectPoints(Mat grayMapCamH, Mat grayMapCamV, Mat
   for(it = 0; it < camCorners.size(); it++)
   {
     pixCoord = camCorners.at(it);
-    imgY = (int) (pixCoord[0] + 0.5);
-    imgX = (int) (pixCoord[1] + 0.5);
+    imgX = (int) (pixCoord[0] + 0.5);
+    imgY = (int) (pixCoord[1] + 0.5);
     currentGrayH = grayMapCamH.at<short>(imgY,imgX);// Find gray value at corner location
     currentGrayV = grayMapCamV.at<short>(imgY,imgX);
     projX = cellSize * ActiveStereoMap::grayToBinary(currentGrayV[0]) + cellSize / 2; // Convert to index in projector frame
     projY = cellSize * ActiveStereoMap::grayToBinary(currentGrayH[0]) + cellSize / 2;
     printf("Gray Level is %f,%f at %d,%d\n",currentGrayH[0],currentGrayV[0],imgX,imgY);
-    pixCoord = Vec2f(projY,projX);
+    pixCoord = Vec2f(projX,projY);
     tempCorners.push_back(pixCoord);
     //ActiveCal::grayToBinary(currentGray);
     // Find corresponding gray value in projector map and save point 
