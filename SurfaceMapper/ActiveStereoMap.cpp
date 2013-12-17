@@ -173,11 +173,11 @@ Mat ActiveStereoMap::computeDisparity(void)
       grayVal = rectProj.at<short>(y,x);
       if(grayVal != 0)
       {
-	disp = expandingSearch(rectCam,x,y,grayVal,60);
+	disp = expandingSearch(rectCam,x,y,grayVal,300);
 	if(disp !=-32768)
 	{
 	  //dispMap(Range(y,y),Range(x,x)) = disp;
-	  dispMap.at<float>(y,x) = disp;
+	  dispMap.at<float>(y,x) = disp + 100;
 	  printf("%f\n",dispMap.at<float>(y,x));
 	}
       }
@@ -188,8 +188,14 @@ Mat ActiveStereoMap::computeDisparity(void)
   rectCam = rectCam / 2;
   rectCam.convertTo(showCam, CV_8UC1);
   rectProj.convertTo(showProj,CV_8UC1);
-  dispMap.convertTo(showDisp, CV_8UC1);
+  
+  Mat depth;
+  //disparityToDepth(dispMap,&depth,1);
 
+ // depth = depth * 100;
+  
+  dispMap.convertTo(showDisp, CV_GRAY2RGB);
+  medianBlur(showDisp,showDisp,7);
   imshow("Rectified Projector", showProj);
   imshow("Rectified Camera",showCam);
   imshow("Disparity",showDisp);
@@ -197,6 +203,24 @@ Mat ActiveStereoMap::computeDisparity(void)
   return dispMap;
 }
 
+void ActiveStereoMap::disparityToDepth(Mat dispMap, Mat *depthMap, float flength)
+{
+  int x,y;
+  float dispVal;
+  for(y=0;y<dispMap.size().height;y++)
+  {
+    for(x=0;x<dispMap.size().width;x++)
+    {
+      dispVal = dispMap.at<float>(y,x);
+      if(abs(dispVal) > 0)
+      {
+	depthMap->at<float>(y,x) = flength/dispVal;
+      }
+      else
+	depthMap->at<float>(y,x) = 0.0f;
+    }
+  }
+}
 /**
  * 
  */

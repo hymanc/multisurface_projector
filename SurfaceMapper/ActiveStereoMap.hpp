@@ -60,6 +60,7 @@ private:
   int * vLUT;
   
   Rect roi;
+  void disparityToDepth(Mat dispMap, Mat *depthmap, float flength);
   float expandingSearch(Mat searchImg, uint xloc, uint yloc, uint grayVal, uint cutoff);
   void processRawImage(Mat rawImg, Mat destImg, int thresh, int factor);
   void capturePattern(Mat tempPattern, Mat tempMat, int levels, int level, bool horizontalFlag);
