@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/jakob/EECS442/project/pclManip
 # Target rules for target CMakeFiles/pclManipTest.dir
 
 # All Build rule for target.
-CMakeFiles/pclManipTest.dir/all:
+CMakeFiles/pclManipTest.dir/all: shaderStuff/CMakeFiles/shaderStuff.dir/all
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/depend
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/jakob/EECS442/project/pclManip/CMakeFiles  1 2
@@ -66,7 +66,7 @@ all: CMakeFiles/pclManipTest.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/pclManipTest.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/pclManipTest.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 0
 .PHONY : CMakeFiles/pclManipTest.dir/rule
@@ -82,6 +82,91 @@ CMakeFiles/pclManipTest.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/pclManipTest.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/shaderPCLTest.dir
+
+# All Build rule for target.
+CMakeFiles/shaderPCLTest.dir/all: shaderStuff/CMakeFiles/shaderStuff.dir/all
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/depend
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/jakob/EECS442/project/pclManip/CMakeFiles  3 4
+	@echo "Built target shaderPCLTest"
+.PHONY : CMakeFiles/shaderPCLTest.dir/all
+
+# Include target in all.
+all: CMakeFiles/shaderPCLTest.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/shaderPCLTest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 6
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/shaderPCLTest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 0
+.PHONY : CMakeFiles/shaderPCLTest.dir/rule
+
+# Convenience name for target.
+shaderPCLTest: CMakeFiles/shaderPCLTest.dir/rule
+.PHONY : shaderPCLTest
+
+# clean rule for target.
+CMakeFiles/shaderPCLTest.dir/clean:
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/clean
+.PHONY : CMakeFiles/shaderPCLTest.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/shaderPCLTest.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory shaderStuff
+
+# Convenience name for "all" pass in the directory.
+shaderStuff/all: shaderStuff/CMakeFiles/shaderStuff.dir/all
+.PHONY : shaderStuff/all
+
+# Convenience name for "clean" pass in the directory.
+shaderStuff/clean: shaderStuff/CMakeFiles/shaderStuff.dir/clean
+.PHONY : shaderStuff/clean
+
+# Convenience name for "preinstall" pass in the directory.
+shaderStuff/preinstall:
+.PHONY : shaderStuff/preinstall
+
+#=============================================================================
+# Target rules for target shaderStuff/CMakeFiles/shaderStuff.dir
+
+# All Build rule for target.
+shaderStuff/CMakeFiles/shaderStuff.dir/all:
+	$(MAKE) -f shaderStuff/CMakeFiles/shaderStuff.dir/build.make shaderStuff/CMakeFiles/shaderStuff.dir/depend
+	$(MAKE) -f shaderStuff/CMakeFiles/shaderStuff.dir/build.make shaderStuff/CMakeFiles/shaderStuff.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/jakob/EECS442/project/pclManip/CMakeFiles  5 6 7 8
+	@echo "Built target shaderStuff"
+.PHONY : shaderStuff/CMakeFiles/shaderStuff.dir/all
+
+# Include target in all.
+all: shaderStuff/CMakeFiles/shaderStuff.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+shaderStuff/CMakeFiles/shaderStuff.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 shaderStuff/CMakeFiles/shaderStuff.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jakob/EECS442/project/pclManip/CMakeFiles 0
+.PHONY : shaderStuff/CMakeFiles/shaderStuff.dir/rule
+
+# Convenience name for target.
+shaderStuff: shaderStuff/CMakeFiles/shaderStuff.dir/rule
+.PHONY : shaderStuff
+
+# clean rule for target.
+shaderStuff/CMakeFiles/shaderStuff.dir/clean:
+	$(MAKE) -f shaderStuff/CMakeFiles/shaderStuff.dir/build.make shaderStuff/CMakeFiles/shaderStuff.dir/clean
+.PHONY : shaderStuff/CMakeFiles/shaderStuff.dir/clean
+
+# clean rule for target.
+clean: shaderStuff/CMakeFiles/shaderStuff.dir/clean
 .PHONY : clean
 
 #=============================================================================

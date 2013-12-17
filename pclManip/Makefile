@@ -108,6 +108,32 @@ pclManipTest/fast:
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/build
 .PHONY : pclManipTest/fast
 
+#=============================================================================
+# Target rules for targets named shaderPCLTest
+
+# Build rule for target.
+shaderPCLTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 shaderPCLTest
+.PHONY : shaderPCLTest
+
+# fast build rule for target.
+shaderPCLTest/fast:
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/build
+.PHONY : shaderPCLTest/fast
+
+#=============================================================================
+# Target rules for targets named shaderStuff
+
+# Build rule for target.
+shaderStuff: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 shaderStuff
+.PHONY : shaderStuff
+
+# fast build rule for target.
+shaderStuff/fast:
+	$(MAKE) -f shaderStuff/CMakeFiles/shaderStuff.dir/build.make shaderStuff/CMakeFiles/shaderStuff.dir/build
+.PHONY : shaderStuff/fast
+
 pclManipTest.o: pclManipTest.cpp.o
 .PHONY : pclManipTest.o
 
@@ -138,6 +164,7 @@ pclManipulator.o: pclManipulator.cpp.o
 # target to build an object file
 pclManipulator.cpp.o:
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/pclManipulator.cpp.o
 .PHONY : pclManipulator.cpp.o
 
 pclManipulator.i: pclManipulator.cpp.i
@@ -146,6 +173,7 @@ pclManipulator.i: pclManipulator.cpp.i
 # target to preprocess a source file
 pclManipulator.cpp.i:
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/pclManipulator.cpp.i
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/pclManipulator.cpp.i
 .PHONY : pclManipulator.cpp.i
 
 pclManipulator.s: pclManipulator.cpp.s
@@ -154,7 +182,32 @@ pclManipulator.s: pclManipulator.cpp.s
 # target to generate assembly for a file
 pclManipulator.cpp.s:
 	$(MAKE) -f CMakeFiles/pclManipTest.dir/build.make CMakeFiles/pclManipTest.dir/pclManipulator.cpp.s
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/pclManipulator.cpp.s
 .PHONY : pclManipulator.cpp.s
+
+shaderPCLTest.o: shaderPCLTest.cpp.o
+.PHONY : shaderPCLTest.o
+
+# target to build an object file
+shaderPCLTest.cpp.o:
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/shaderPCLTest.cpp.o
+.PHONY : shaderPCLTest.cpp.o
+
+shaderPCLTest.i: shaderPCLTest.cpp.i
+.PHONY : shaderPCLTest.i
+
+# target to preprocess a source file
+shaderPCLTest.cpp.i:
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/shaderPCLTest.cpp.i
+.PHONY : shaderPCLTest.cpp.i
+
+shaderPCLTest.s: shaderPCLTest.cpp.s
+.PHONY : shaderPCLTest.s
+
+# target to generate assembly for a file
+shaderPCLTest.cpp.s:
+	$(MAKE) -f CMakeFiles/shaderPCLTest.dir/build.make CMakeFiles/shaderPCLTest.dir/shaderPCLTest.cpp.s
+.PHONY : shaderPCLTest.cpp.s
 
 # Help Target
 help:
@@ -165,12 +218,17 @@ help:
 	@echo "... edit_cache"
 	@echo "... pclManipTest"
 	@echo "... rebuild_cache"
+	@echo "... shaderPCLTest"
+	@echo "... shaderStuff"
 	@echo "... pclManipTest.o"
 	@echo "... pclManipTest.i"
 	@echo "... pclManipTest.s"
 	@echo "... pclManipulator.o"
 	@echo "... pclManipulator.i"
 	@echo "... pclManipulator.s"
+	@echo "... shaderPCLTest.o"
+	@echo "... shaderPCLTest.i"
+	@echo "... shaderPCLTest.s"
 .PHONY : help
 
 

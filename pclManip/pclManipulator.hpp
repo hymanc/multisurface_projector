@@ -8,12 +8,15 @@
 #include <sys/stat.h>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include <pcl/point_types.h>
 #include <pcl/compression/organized_pointcloud_conversion.h>
 #include <pcl/pcl_base.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/surface/gp3.h>
+#include <pcl/Vertices.h>
 
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
@@ -27,6 +30,13 @@
 
 #include <pcl/surface/vtk_smoothing/vtk_mesh_smoothing_laplacian.h>
 #include <pcl/surface/processing.h>
+#include <pcl/surface/mls.h>
+
+/*
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+*/
 
 
 using namespace pcl;
@@ -44,6 +54,10 @@ public:
   void generateMesh();
   void saveMesh(const string & fileName);
   void smoothMesh(int numIter, float relax);
+  void fillVectors(
+      std::vector<glm::vec3> & vertices,
+      std::vector<glm::vec2> & uvs,
+      std::vector<glm::vec3> & normals);
   
 
   //Set Functions

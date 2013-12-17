@@ -19,4 +19,5 @@ SET(CMAKE_TARGET_DEFINITIONS
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/jakob/EECS442/project/pclManip/shaderStuff/CMakeFiles/shaderStuff.dir/DependInfo.cmake"
   )

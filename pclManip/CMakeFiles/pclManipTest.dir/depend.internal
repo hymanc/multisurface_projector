@@ -200,6 +200,7 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o
  /usr/include/pcl-1.7/pcl/common/common.h
  /usr/include/pcl-1.7/pcl/common/concatenate.h
  /usr/include/pcl-1.7/pcl/common/eigen.h
+ /usr/include/pcl-1.7/pcl/common/geometry.h
  /usr/include/pcl-1.7/pcl/common/impl/centroid.hpp
  /usr/include/pcl-1.7/pcl/common/impl/common.hpp
  /usr/include/pcl-1.7/pcl/common/impl/eigen.hpp
@@ -276,10 +277,13 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o
  /usr/include/pcl-1.7/pcl/search/pcl_search.h
  /usr/include/pcl-1.7/pcl/search/search.h
  /usr/include/pcl-1.7/pcl/surface/boost.h
+ /usr/include/pcl-1.7/pcl/surface/eigen.h
  /usr/include/pcl-1.7/pcl/surface/gp3.h
  /usr/include/pcl-1.7/pcl/surface/impl/gp3.hpp
+ /usr/include/pcl-1.7/pcl/surface/impl/mls.hpp
  /usr/include/pcl-1.7/pcl/surface/impl/processing.hpp
  /usr/include/pcl-1.7/pcl/surface/impl/reconstruction.hpp
+ /usr/include/pcl-1.7/pcl/surface/mls.h
  /usr/include/pcl-1.7/pcl/surface/processing.h
  /usr/include/pcl-1.7/pcl/surface/reconstruction.h
  /usr/include/pcl-1.7/pcl/surface/vtk_smoothing/vtk.h
@@ -344,6 +348,33 @@ CMakeFiles/pclManipTest.dir/pclManipTest.cpp.o
  /usr/include/vtk-5.8/vtkstd/string
  /usr/include/vtk-5.8/vtkstd/utility
  /usr/include/vtk-5.8/vtkstd/vector
+ /usr/local/include/opencv2/calib3d/calib3d.hpp
+ /usr/local/include/opencv2/contrib/contrib.hpp
+ /usr/local/include/opencv2/contrib/openfabmap.hpp
+ /usr/local/include/opencv2/contrib/retina.hpp
+ /usr/local/include/opencv2/core/core.hpp
+ /usr/local/include/opencv2/core/core_c.h
+ /usr/local/include/opencv2/core/mat.hpp
+ /usr/local/include/opencv2/core/operations.hpp
+ /usr/local/include/opencv2/core/types_c.h
+ /usr/local/include/opencv2/core/version.hpp
+ /usr/local/include/opencv2/features2d/features2d.hpp
+ /usr/local/include/opencv2/flann/config.h
+ /usr/local/include/opencv2/flann/defines.h
+ /usr/local/include/opencv2/flann/miniflann.hpp
+ /usr/local/include/opencv2/highgui/highgui.hpp
+ /usr/local/include/opencv2/highgui/highgui_c.h
+ /usr/local/include/opencv2/imgproc/imgproc.hpp
+ /usr/local/include/opencv2/imgproc/imgproc_c.h
+ /usr/local/include/opencv2/imgproc/types_c.h
+ /usr/local/include/opencv2/ml/ml.hpp
+ /usr/local/include/opencv2/objdetect/objdetect.hpp
+ /usr/local/include/opencv2/opencv.hpp
+ /usr/local/include/opencv2/photo/photo.hpp
+ /usr/local/include/opencv2/photo/photo_c.h
+ /usr/local/include/opencv2/video/background_segm.hpp
+ /usr/local/include/opencv2/video/tracking.hpp
+ /usr/local/include/opencv2/video/video.hpp
 CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /home/jakob/EECS442/project/pclManip/pclManipulator.cpp
  /home/jakob/EECS442/project/pclManip/pclManipulator.hpp
@@ -543,6 +574,7 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/pcl-1.7/pcl/common/common.h
  /usr/include/pcl-1.7/pcl/common/concatenate.h
  /usr/include/pcl-1.7/pcl/common/eigen.h
+ /usr/include/pcl-1.7/pcl/common/geometry.h
  /usr/include/pcl-1.7/pcl/common/impl/centroid.hpp
  /usr/include/pcl-1.7/pcl/common/impl/common.hpp
  /usr/include/pcl-1.7/pcl/common/impl/eigen.hpp
@@ -619,10 +651,13 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/pcl-1.7/pcl/search/pcl_search.h
  /usr/include/pcl-1.7/pcl/search/search.h
  /usr/include/pcl-1.7/pcl/surface/boost.h
+ /usr/include/pcl-1.7/pcl/surface/eigen.h
  /usr/include/pcl-1.7/pcl/surface/gp3.h
  /usr/include/pcl-1.7/pcl/surface/impl/gp3.hpp
+ /usr/include/pcl-1.7/pcl/surface/impl/mls.hpp
  /usr/include/pcl-1.7/pcl/surface/impl/processing.hpp
  /usr/include/pcl-1.7/pcl/surface/impl/reconstruction.hpp
+ /usr/include/pcl-1.7/pcl/surface/mls.h
  /usr/include/pcl-1.7/pcl/surface/processing.h
  /usr/include/pcl-1.7/pcl/surface/reconstruction.h
  /usr/include/pcl-1.7/pcl/surface/vtk_smoothing/vtk.h
@@ -687,3 +722,30 @@ CMakeFiles/pclManipTest.dir/pclManipulator.cpp.o
  /usr/include/vtk-5.8/vtkstd/string
  /usr/include/vtk-5.8/vtkstd/utility
  /usr/include/vtk-5.8/vtkstd/vector
+ /usr/local/include/opencv2/calib3d/calib3d.hpp
+ /usr/local/include/opencv2/contrib/contrib.hpp
+ /usr/local/include/opencv2/contrib/openfabmap.hpp
+ /usr/local/include/opencv2/contrib/retina.hpp
+ /usr/local/include/opencv2/core/core.hpp
+ /usr/local/include/opencv2/core/core_c.h
+ /usr/local/include/opencv2/core/mat.hpp
+ /usr/local/include/opencv2/core/operations.hpp
+ /usr/local/include/opencv2/core/types_c.h
+ /usr/local/include/opencv2/core/version.hpp
+ /usr/local/include/opencv2/features2d/features2d.hpp
+ /usr/local/include/opencv2/flann/config.h
+ /usr/local/include/opencv2/flann/defines.h
+ /usr/local/include/opencv2/flann/miniflann.hpp
+ /usr/local/include/opencv2/highgui/highgui.hpp
+ /usr/local/include/opencv2/highgui/highgui_c.h
+ /usr/local/include/opencv2/imgproc/imgproc.hpp
+ /usr/local/include/opencv2/imgproc/imgproc_c.h
+ /usr/local/include/opencv2/imgproc/types_c.h
+ /usr/local/include/opencv2/ml/ml.hpp
+ /usr/local/include/opencv2/objdetect/objdetect.hpp
+ /usr/local/include/opencv2/opencv.hpp
+ /usr/local/include/opencv2/photo/photo.hpp
+ /usr/local/include/opencv2/photo/photo_c.h
+ /usr/local/include/opencv2/video/background_segm.hpp
+ /usr/local/include/opencv2/video/tracking.hpp
+ /usr/local/include/opencv2/video/video.hpp

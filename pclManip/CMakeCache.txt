@@ -77,8 +77,9 @@ Boost_THREAD_LIBRARY_RELEASE:FILEPATH=/usr/lib/libboost_thread-mt.so
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
 
-//No help, variable specified on the command line.
-CMAKE_BUILD_TYPE:STRING=Debug
+//Choose the type of build, options are: None(CMAKE_CXX_FLAGS or
+// CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.
+CMAKE_BUILD_TYPE:STRING=
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
@@ -233,6 +234,23 @@ OPENNI_INCLUDE_DIRS:PATH=/usr/include/openni
 
 //Path to a library.
 OPENNI_LIBRARY:FILEPATH=/usr/lib/libOpenNI.so
+
+//Path where debug 3rdpaty OpenCV dependencies are located
+OpenCV_3RDPARTY_LIB_DIR_DBG:PATH=/usr/local/share/OpenCV/3rdparty/lib
+
+//Path where release 3rdpaty OpenCV dependencies are located
+OpenCV_3RDPARTY_LIB_DIR_OPT:PATH=/usr/local/share/OpenCV/3rdparty/lib
+
+OpenCV_CONFIG_PATH:FILEPATH=/usr/local/share/OpenCV
+
+//The directory containing a CMake configuration file for OpenCV.
+OpenCV_DIR:PATH=/usr/local/share/OpenCV
+
+//Path where debug OpenCV libraries are located
+OpenCV_LIB_DIR_DBG:PATH=/usr/local/lib
+
+//Path where release OpenCV libraries are located
+OpenCV_LIB_DIR_OPT:PATH=/usr/local/lib
 
 //path to apps headers
 PCL_APPS_INCLUDE_DIR:PATH=/usr/include/pcl-1.7
@@ -420,6 +438,9 @@ QHULL_LIBRARY:FILEPATH=/usr/lib/libqhull.so
 //Path to a library.
 QHULL_LIBRARY_DEBUG:FILEPATH=/usr/lib/libqhull.so
 
+//Dependencies for target
+shaderStuff_LIB_DEPENDS:STATIC=
+
 
 ########################
 # INTERNAL cache entries
@@ -571,7 +592,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=1
+CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=2
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -603,7 +624,7 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Flann
 FIND_PACKAGE_MESSAGE_DETAILS_Flann:INTERNAL=[/usr/lib/libflann_cpp_s.a][/usr/include][v()]
 //Details about finding PCL
-FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[/usr/lib/libboost_system-mt.so;/usr/lib/libboost_filesystem-mt.so;/usr/lib/libboost_thread-mt.so;pthread;/usr/lib/libboost_date_time-mt.so;/usr/lib/libboost_iostreams-mt.so;/usr/lib/libboost_serialization-mt.so;optimized;/usr/lib/libpcl_common.so;debug;/usr/lib/libpcl_common.so;optimized;/usr/lib/libflann_cpp_s.a;debug;/usr/lib/libflann_cpp_s.a;optimized;/usr/lib/libpcl_kdtree.so;debug;/usr/lib/libpcl_kdtree.so;optimized;/usr/lib/libpcl_octree.so;debug;/usr/lib/libpcl_octree.so;optimized;/usr/lib/libpcl_search.so;debug;/usr/lib/libpcl_search.so;optimized;/usr/lib/libqhull.so;debug;/usr/lib/libqhull.so;optimized;/usr/lib/libpcl_surface.so;debug;/usr/lib/libpcl_surface.so;optimized;/usr/lib/libpcl_sample_consensus.so;debug;/usr/lib/libpcl_sample_consensus.so;optimized;/usr/lib/libpcl_filters.so;debug;/usr/lib/libpcl_filters.so;optimized;/usr/lib/libpcl_features.so;debug;/usr/lib/libpcl_features.so;optimized;/usr/lib/libpcl_segmentation.so;debug;/usr/lib/libpcl_segmentation.so;/usr/lib/libOpenNI.so;vtkCommon;vtkRendering;vtkHybrid;vtkCharts;optimized;/usr/lib/libpcl_io.so;debug;/usr/lib/libpcl_io.so;optimized;/usr/lib/libpcl_registration.so;debug;/usr/lib/libpcl_registration.so;optimized;/usr/lib/libpcl_keypoints.so;debug;/usr/lib/libpcl_keypoints.so;optimized;/usr/lib/libpcl_recognition.so;debug;/usr/lib/libpcl_recognition.so;optimized;/usr/lib/libpcl_visualization.so;debug;/usr/lib/libpcl_visualization.so;optimized;/usr/lib/libpcl_people.so;debug;/usr/lib/libpcl_people.so;optimized;/usr/lib/libpcl_outofcore.so;debug;/usr/lib/libpcl_outofcore.so;optimized;/usr/lib/libpcl_tracking.so;debug;/usr/lib/libpcl_tracking.so;optimized;/usr/lib/libpcl_apps.so;debug;/usr/lib/libpcl_apps.so;/usr/lib/libboost_system-mt.so;/usr/lib/libboost_filesystem-mt.so;/usr/lib/libboost_thread-mt.so;pthread;/usr/lib/libboost_date_time-mt.so;/usr/lib/libboost_iostreams-mt.so;/usr/lib/libboost_serialization-mt.so;optimized;/usr/lib/libqhull.so;debug;/usr/lib/libqhull.so;/usr/lib/libOpenNI.so;optimized;/usr/lib/libflann_cpp_s.a;debug;/usr/lib/libflann_cpp_s.a;vtkCommon;vtkRendering;vtkHybrid;vtkCharts][/usr/include/pcl-1.7;/usr/include/eigen3;/usr/include;/usr/include/qhull;/usr/include/openni;/usr/include/vtk-5.8][v(1.3)]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[/usr/lib/libboost_system-mt.so;/usr/lib/libboost_filesystem-mt.so;/usr/lib/libboost_thread-mt.so;/usr/lib/libboost_date_time-mt.so;/usr/lib/libboost_iostreams-mt.so;/usr/lib/libboost_serialization-mt.so;optimized;/usr/lib/libpcl_common.so;debug;/usr/lib/libpcl_common.so;optimized;/usr/lib/libflann_cpp_s.a;debug;/usr/lib/libflann_cpp_s.a;optimized;/usr/lib/libpcl_kdtree.so;debug;/usr/lib/libpcl_kdtree.so;optimized;/usr/lib/libpcl_octree.so;debug;/usr/lib/libpcl_octree.so;optimized;/usr/lib/libpcl_search.so;debug;/usr/lib/libpcl_search.so;optimized;/usr/lib/libqhull.so;debug;/usr/lib/libqhull.so;optimized;/usr/lib/libpcl_surface.so;debug;/usr/lib/libpcl_surface.so;optimized;/usr/lib/libpcl_sample_consensus.so;debug;/usr/lib/libpcl_sample_consensus.so;optimized;/usr/lib/libpcl_filters.so;debug;/usr/lib/libpcl_filters.so;optimized;/usr/lib/libpcl_features.so;debug;/usr/lib/libpcl_features.so;optimized;/usr/lib/libpcl_segmentation.so;debug;/usr/lib/libpcl_segmentation.so;/usr/lib/libOpenNI.so;vtkCommon;vtkRendering;vtkHybrid;vtkCharts;optimized;/usr/lib/libpcl_io.so;debug;/usr/lib/libpcl_io.so;optimized;/usr/lib/libpcl_registration.so;debug;/usr/lib/libpcl_registration.so;optimized;/usr/lib/libpcl_keypoints.so;debug;/usr/lib/libpcl_keypoints.so;optimized;/usr/lib/libpcl_recognition.so;debug;/usr/lib/libpcl_recognition.so;optimized;/usr/lib/libpcl_visualization.so;debug;/usr/lib/libpcl_visualization.so;optimized;/usr/lib/libpcl_people.so;debug;/usr/lib/libpcl_people.so;optimized;/usr/lib/libpcl_outofcore.so;debug;/usr/lib/libpcl_outofcore.so;optimized;/usr/lib/libpcl_tracking.so;debug;/usr/lib/libpcl_tracking.so;optimized;/usr/lib/libpcl_apps.so;debug;/usr/lib/libpcl_apps.so;/usr/lib/libboost_system-mt.so;/usr/lib/libboost_filesystem-mt.so;/usr/lib/libboost_thread-mt.so;/usr/lib/libboost_date_time-mt.so;/usr/lib/libboost_iostreams-mt.so;/usr/lib/libboost_serialization-mt.so;optimized;/usr/lib/libqhull.so;debug;/usr/lib/libqhull.so;/usr/lib/libOpenNI.so;optimized;/usr/lib/libflann_cpp_s.a;debug;/usr/lib/libflann_cpp_s.a;vtkCommon;vtkRendering;vtkHybrid;vtkCharts][/usr/include/pcl-1.7;/usr/include/eigen3;/usr/include;/usr/include/qhull;/usr/include/openni;/usr/include/vtk-5.8][v(1.3)]
 //Details about finding PCL_APPS
 FIND_PACKAGE_MESSAGE_DETAILS_PCL_APPS:INTERNAL=[/usr/lib/libpcl_apps.so][/usr/include/pcl-1.7][v()]
 //Details about finding PCL_COMMON
@@ -650,6 +671,16 @@ FIND_PACKAGE_MESSAGE_DETAILS_libusb-1.0:INTERNAL=[/usr/include][v()]
 FIND_PACKAGE_MESSAGE_DETAILS_openni:INTERNAL=[/usr/lib/libOpenNI.so][/usr/include/openni][v()]
 //Details about finding qhull
 FIND_PACKAGE_MESSAGE_DETAILS_qhull:INTERNAL=[/usr/lib/libqhull.so][/usr/include/qhull][v()]
+//ADVANCED property for variable: OpenCV_3RDPARTY_LIB_DIR_DBG
+OpenCV_3RDPARTY_LIB_DIR_DBG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenCV_3RDPARTY_LIB_DIR_OPT
+OpenCV_3RDPARTY_LIB_DIR_OPT-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenCV_CONFIG_PATH
+OpenCV_CONFIG_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenCV_LIB_DIR_DBG
+OpenCV_LIB_DIR_DBG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenCV_LIB_DIR_OPT
+OpenCV_LIB_DIR_OPT-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PCL_APPS_LIBRARY
 PCL_APPS_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PCL_APPS_LIBRARY_DEBUG

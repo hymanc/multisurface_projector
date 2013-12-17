@@ -9,9 +9,9 @@
 
 pclManipulator::pclManipulator()
 {
-  PointCloud<PointNormal>::Ptr temp (new PointCloud<PointNormal>);
+  pcl::PointCloud<PointNormal>::Ptr temp (new PointCloud<PointNormal>);
   pptr = temp;
-  PolygonMesh::Ptr t (new PolygonMesh);
+  pcl::PolygonMesh::Ptr t (new PolygonMesh);
   pmesh = t;
   applyMedian = false;
   applyRadOutRem = false;
@@ -20,9 +20,9 @@ pclManipulator::pclManipulator()
   medianWindowSize = 5;
   filtered = false;
   searchRadius = 20;
-  minNeighbors = 20;
-  statOutMean = 5;
-  statOutStdDev = 1.0;
+  minNeighbors = 10;
+  statOutMean = 50;
+  statOutStdDev = 0.75;
   minZLimit = -1000;
   maxZLimit = 1000;
   cloudReady = false;
@@ -58,19 +58,25 @@ void pclManipulator::initialize(const string & fileName)
 
 void pclManipulator::initialize(cv::Mat disparityMap)
 {
-    vector<float> v;
-    vector<float> row;
+    vector<uint16_t> v;
+    vector<uint16_t> row;
+    cv::Mat temp;
     cv::Size s = disparityMap.size();
+    disparityMap.convertTo(temp, CV_16UC1);
+    imshow("AWESOME", temp);
+    imshow("YEAH!", disparityMap);
+    cv::waitKey(0);
 
     for(int i=0;i<s.height;i++)
     {
-      float* pointer = disparityMap.ptr<float>(i);
-      row = vector<float>(pointer,pointer+disparityMap.cols);
+      uint16_t* pointer = temp.ptr<uint16_t>(i);
+      row = vector<uint16_t>(pointer,pointer+temp.cols);
       v.insert(v.end(),row.begin(),row.end());
     }
+
     io::OrganizedConversion<PointNormal,false> OC;   
-    std::vector<uint8_t> temp;
-    OC.convert(v,temp,false,s.width,s.height,1,*pptr);
+    std::vector<uint8_t> t;
+    OC.convert(v,t,false,s.width,s.height,1,*pptr);
 
     if(!pptr->empty())
       cloudReady = true;
@@ -86,12 +92,12 @@ void pclManipulator::filterPC()
     //Apply Median Filter
     if(applyMedian&&pptr->isOrganized())
     {
-      PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
+      pcl::PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
       int oldSize = tempPtr->width*tempPtr->height;
-      MedianFilter<PointNormal> m;
+      pcl::MedianFilter<PointNormal> m;
       m.setInputCloud(tempPtr);
       m.setWindowSize(medianWindowSize);
-      PointCloud<PointNormal> ptemp;
+      pcl::PointCloud<PointNormal> ptemp;
       m.filter(ptemp);
       pptr=ptemp.makeShared();
       printUpdate("Median",oldSize);
@@ -100,15 +106,15 @@ void pclManipulator::filterPC()
     }
     if(applyRadOutRem)
     {
-      PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
+      pcl::PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
       int oldSize = tempPtr->width*tempPtr->height;
       cout << "Warning: applying radius outlier removal filter on point cloud" << endl;
       cout << "This will cause the point cloud to become unordered!" << endl << endl;
-      RadiusOutlierRemoval<PointNormal> r(true);
+      pcl::RadiusOutlierRemoval<PointNormal> r(true);
       r.setInputCloud(tempPtr);
       r.setRadiusSearch(searchRadius);
       r.setMinNeighborsInRadius(minNeighbors);
-      PointCloud<PointNormal> ptemp;
+      pcl::PointCloud<PointNormal> ptemp;
       r.filter(*pptr);
       printUpdate("Radius Outlier Removal",oldSize);
       filtered = true;
@@ -116,13 +122,13 @@ void pclManipulator::filterPC()
     }
     if(applyStatOutRem)
     {
-      PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
+      pcl::PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
       int oldSize = tempPtr->width*tempPtr->height;
-      StatisticalOutlierRemoval<PointNormal> sor(true);
+      pcl::StatisticalOutlierRemoval<PointNormal> sor(true);
       sor.setInputCloud(tempPtr);
       sor.setMeanK(statOutMean);
       sor.setStddevMulThresh(statOutStdDev);
-      PointCloud<PointNormal> ptemp;
+      pcl::PointCloud<PointNormal> ptemp;
       sor.filter(ptemp);
       pptr = ptemp.makeShared();  
       printUpdate("Statistical Outlier Removal",oldSize);
@@ -131,15 +137,15 @@ void pclManipulator::filterPC()
     }
     if(applyPassThrough)
     {
-      PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
+      pcl::PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
       int oldSize = tempPtr->width*tempPtr->height;
       cout << "Warning: applying passThrough filter on point cloud" << endl;
       cout << "This will cause the point cloud to become unordered!" << endl << endl;  
-      PassThrough<PointNormal> pt(true);
+      pcl::PassThrough<PointNormal> pt(true);
       pt.setInputCloud(pptr);
       pt.setFilterFieldName("z");
       pt.setFilterLimits(minZLimit,maxZLimit);
-      PointCloud<PointNormal> ptemp;
+      pcl::PointCloud<PointNormal> ptemp;
       pt.filter(ptemp);
       pptr = ptemp.makeShared(); 
       printUpdate("Pass Through",oldSize);
@@ -149,17 +155,58 @@ void pclManipulator::filterPC()
     }
     if(filtered==true)
     {
-      PointCloud<pcl::PointXYZ>::Ptr t (new pcl::PointCloud<pcl::PointXYZ>);
-      copyPointCloud(*pptr,*t);
-      NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
-      PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-      search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+/*    pcl::PointCloud<pcl::PointXYZ>::Ptr t (new pcl::PointCloud<pcl::PointXYZ>);
+      pcl::copyPointCloud(*pptr,*t);
+      pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
+      pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+      pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
       tree->setInputCloud (t);
       n.setInputCloud (t);
       n.setSearchMethod (tree);
       n.setKSearch (20);
       n.compute (*normals);
-      concatenateFields (*t, *normals, *pptr);
+      pcl::concatenateFields (*t, *normals, *pptr);
+      cout << "Normals have been recomputed for point cloud." << endl << endl;
+*/
+      pcl::PointCloud<pcl::PointXYZ>::Ptr t2 (new pcl::PointCloud<pcl::PointXYZ>);
+      pcl::copyPointCloud(*pptr,*t2);
+
+      // Create a KD-Tree
+      pcl::search::KdTree<pcl::PointXYZ>::Ptr tree2 (new pcl::search::KdTree<pcl::PointXYZ>);
+      tree2->setInputCloud(t2);
+      // Output has the PointNormal type in order to store the normals calculated by MLS
+      pcl::PointCloud<pcl::PointNormal> mls_points;
+
+      // Init object (second point type is for the normals, even if unused)
+      pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+     
+      mls.setComputeNormals (true);
+
+      // Set parameters
+      mls.setInputCloud (t2);
+      mls.setDilationIterations(2);
+      mls.setDilationVoxelSize(3.75);
+      mls.setPolynomialOrder(2);
+      mls.setPolynomialFit (true);
+      mls.setSearchMethod (tree2);
+      mls.setUpsamplingMethod((pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal>::UpsamplingMethod)4); //VOXEL_GRID_DILATION --> was having trouble with enum declaration
+      mls.setSearchRadius (20);
+      // Reconstruct
+      mls.process (*pptr);
+
+      pcl::PointCloud<PointNormal>::Ptr tempPtr = pptr->makeShared();
+      int oldSize = tempPtr->width*tempPtr->height;
+      cout << "Warning: applying passThrough filter on point cloud" << endl;
+      cout << "This will cause the point cloud to become unordered!" << endl << endl;  
+      pcl::PassThrough<PointNormal> pt(true);
+      pt.setInputCloud(pptr);
+      pt.setFilterFieldName("z");
+      pt.setFilterLimits(minZLimit,maxZLimit);
+      pcl::PointCloud<PointNormal> ptemp;
+      pt.filter(ptemp);
+      pptr = ptemp.makeShared(); 
+      printUpdate("Pass Through",oldSize);
+
       cout << "Normals have been recomputed for point cloud." << endl << endl;
     }
   }
@@ -175,9 +222,9 @@ void pclManipulator::filterPC()
   {
     if(fileType==1)
     {
-      PLYWriter wp;
-      PCLPointCloud2 p2temp;
-      toPCLPointCloud2(*pptr, p2temp);
+      pcl::PLYWriter wp;
+      pcl::PCLPointCloud2 p2temp;
+      pcl::toPCLPointCloud2(*pptr, p2temp);
       saveSuccessful = wp.write(fileName, p2temp,Eigen::Vector4f::Zero(),  Eigen::Quaternionf::Identity(), false, false);
       //io::savePLYFileASCII(fileName,*pptr);
     }
@@ -202,14 +249,14 @@ void pclManipulator::generateMesh()
 {
   if(cloudReady)
   {
-    search::KdTree<pcl::PointNormal>::Ptr tree2 (new pcl::search::KdTree<pcl::PointNormal>);
+    pcl::search::KdTree<pcl::PointNormal>::Ptr tree2 (new pcl::search::KdTree<pcl::PointNormal>);
     tree2->setInputCloud (pptr);
     pcl::GreedyProjectionTriangulation<pcl::PointNormal> gp3;
     // Set the maximum distance between connected points (maximum edge length)
-    gp3.setSearchRadius (9);
+    gp3.setSearchRadius (5);
     // Set typical values for the parameters
-    gp3.setMu(60.0);
-    gp3.setMaximumNearestNeighbors (180);
+    gp3.setMu(35);
+    gp3.setMaximumNearestNeighbors (200);
     gp3.setMaximumSurfaceAngle(M_PI/4); // 45 degrees
     gp3.setMinimumAngle(M_PI/18); // 10 degrees
     gp3.setMaximumAngle(2*M_PI/3); // 120 degrees
@@ -232,9 +279,9 @@ void pclManipulator::saveMesh(const string & fileName)
   }
   else
   {
-    if(io::saveOBJFile(fileName,*pmesh,6)==0)
+    if(pcl::io::saveOBJFile(fileName,*pmesh,6)==0)
     {
-      io::savePLYFile("best_mesh.ply",*pmesh,6);
+      pcl::io::savePLYFile("best_mesh.ply",*pmesh,6);
       cout << "mesh saved to .obj file successfully!" << endl << endl;
     }
     else
@@ -250,17 +297,67 @@ void pclManipulator::smoothMesh(int numIter, float relax)
     cout << "ERROR: Smoothing operation requested will not take place. " << endl << endl;
     return;
   }
-
-  MeshSmoothingLaplacianVTK v;
+  pcl::MeshSmoothingLaplacianVTK v;
   v.setInputMesh(pmesh);
   v.setNumIter(numIter);
   v.setRelaxationFactor(relax);
-  PolygonMesh::Ptr t (new PolygonMesh);
+  pcl::PolygonMesh::Ptr t (new PolygonMesh);
   v.process(*t);
   pmesh = t;
+
 }
-  
-  
+
+void pclManipulator::fillVectors(
+      std::vector<glm::vec3> & vertices,
+      std::vector<glm::vec2> & uvs,
+      std::vector<glm::vec3> & normals)
+{
+  if(!meshGenerated)
+  {
+    cout << "ERROR: Mesh has not been generatore from point cloud. " << endl;
+    cout << "ERROR: vectors will not be filled . " << endl << endl;
+    return;
+  }
+
+  glm::vec3 vertTemp;
+  glm::vec3 normTemp;
+  pcl::PointNormal tempPoint;
+  pcl::PointCloud<PointXYZ>  tempCloud;
+  pcl::PointCloud<PointNormal> normalXYZ;
+  pcl::fromPCLPointCloud2(pmesh->cloud, tempCloud);
+
+
+  //UGLY UGLY UGLY hack to regenerate the normals. which smoothing apparently destroys
+  pcl::PointCloud<pcl::PointXYZ>::Ptr t (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::copyPointCloud(*pptr,*t);
+  pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
+  pcl::PointCloud<pcl::Normal>::Ptr npc (new pcl::PointCloud<pcl::Normal>);
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  tree->setInputCloud (t);
+  n.setInputCloud (t);
+  n.setSearchMethod (tree);
+  n.setKSearch (20);
+  n.compute (*npc);
+  pcl::concatenateFields (*t, *npc, normalXYZ);
+
+  for(vector< pcl::Vertices >::iterator it = pmesh->polygons.begin(); it!=pmesh->polygons.end();++it)
+  {
+    for (size_t i = 0; i < it->vertices.size(); ++i)
+    {
+      tempPoint =  normalXYZ[it->vertices[i]];
+      normTemp.x = tempPoint.normal_x;
+      normTemp.y = tempPoint.normal_y;
+      normTemp.z = tempPoint.normal_z;
+      vertTemp.x = tempPoint.x;
+      vertTemp.y = tempPoint.y;
+      vertTemp.z = tempPoint.z;
+      vertices.push_back(vertTemp);
+      normals.push_back(normTemp);
+      glm::vec2 uv = glm::vec2(0,0);
+      uvs.push_back(uv);
+    }
+  }
+}  
 
 void pclManipulator::setApplyMedian(bool in)
 {

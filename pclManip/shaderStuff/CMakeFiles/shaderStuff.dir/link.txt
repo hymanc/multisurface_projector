@@ -1,0 +1,2 @@
+/usr/bin/ar cr libshaderStuff.a  CMakeFiles/shaderStuff.dir/controls.cpp.o CMakeFiles/shaderStuff.dir/vboindexer.cpp.o CMakeFiles/shaderStuff.dir/ShaderProgram.cpp.o CMakeFiles/shaderStuff.dir/texture.cpp.o
+/usr/bin/ranlib libshaderStuff.a

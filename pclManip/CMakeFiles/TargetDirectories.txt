@@ -1,1 +1,3 @@
 /home/jakob/EECS442/project/pclManip/CMakeFiles/pclManipTest.dir
+/home/jakob/EECS442/project/pclManip/CMakeFiles/shaderPCLTest.dir
+/home/jakob/EECS442/project/pclManip/shaderStuff/CMakeFiles/shaderStuff.dir
