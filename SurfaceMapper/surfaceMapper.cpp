@@ -37,22 +37,20 @@ int main(int argc, char ** argv)
       printf("Camera resolution set to %dx%d\n",(int)xrescheck,(int)yrescheck);
       printf("%d FPS\n",(int)fps);
   }
-  cal_set calVals;
-  ActiveCal *cal = new ActiveCal;
+  
+  ActiveCal *cal = new ActiveCal();
   int calRuns = atoi(argv[3]);
+  
   if(calRuns > 0)
   {
-    cal->calibrate(&calVals, cap, Size(8,6),14,14,atoi(argv[2]),calRuns);
+    cal->calibrate(cap, Size(8,6),14,14,atoi(argv[2]),calRuns);
   }
   else
   {
-    vector<vector <Vec3f> > obj;
-    vector<vector <Vec2f> > c,p;
-    cal->readCalPointsFromFile(obj,c,p);
+    ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));
+    smapper->runMapping(atoi(argv[2]),false);
+    smapper->computeDisparity();
   }
-  
-  
-  //ActiveStereoMap *smapper = new ActiveStereoMap(cap, Size(PROJECTOR_W,PROJECTOR_H));
   //smapper->runMapping(atoi(argv[2]));
   /*
   Mat grayhorz = smapper->getGrayH();

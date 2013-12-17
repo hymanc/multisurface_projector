@@ -1,4 +1,5 @@
 #include "ActiveCalib.hpp"
+#include "ActiveStereoMap.hpp"
 #include <opencv2/opencv.hpp>
 
 /**
@@ -12,172 +13,229 @@
  * @param ncals Number of calibration shots to take 
  * @return Success of running the calibration routine
  */
-bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float sqWidth, float sqHeight, int lvls, int ncals)
+bool ActiveCal::calibrate(VideoCapture c, Size cboardSize, float sqWidth, float sqHeight, int lvls, int ncals)
 {
   namedWindow("Preview",1);
+  namedWindow("Projector Corners",1);
   Mat cam, camROI, graycam;
   Mat grayMapCamH, grayMapCamV, grayMapProjH, grayMapProjV;
   c >> cam;
   cvtColor(cam, graycam, CV_RGB2GRAY);
   vector<Vec2f> tempCamCorners, tempProjCorners;
-  vector< vector<Vec2f> > camCorners, projCorners;
-  vector< vector<Vec3f> > objCornersGroup;
+  //vector< vector<Vec2f> > camCorners, projCorners;
+  //vector< vector<Vec3f> > objCornersGroup;
+  //RC = new stereo_rect;
+  camCorners.clear();
+  projCorners.clear();
+  objCornersGroup.clear();
+  
   ActiveStereoMap *map = new ActiveStereoMap(c,Size(PROJECTOR_W,PROJECTOR_H));
   
   generateObjectCorners(cboardSize, sqWidth, sqHeight);
   
-  int i;
-  for(i = 0; i<ncals; i++)
+  if(ncals > 0)
   {
-    map->showWhite(100);
-    bool foundCheckersFlag = false;
-    // Wait for 
-    //while(waitKey(30) <= 0 || !foundCheckersFlag)
-    while(true)
+    int i;
+    for(i = 0; i<ncals; i++)
     {
-      c >> cam; // Capture image
-      if(cam.size().width >= PROJECTOR_W && cam.size().height >= PROJECTOR_H)
+      map->showWhite(100);
+      bool foundCheckersFlag = false;
+      while(true)
       {
-	camROI = cam(Rect(ROI_X_OFFSET,ROI_Y_OFFSET,ROI_WIDTH,ROI_HEIGHT)); // Get 640x480 ROI for stereo
+	c >> cam; // Capture image
+	if(cam.size().width >= PROJECTOR_W && cam.size().height >= PROJECTOR_H)
+	{
+	  camROI = cam(Rect(ROI_X_OFFSET,ROI_Y_OFFSET,ROI_WIDTH,ROI_HEIGHT)); // Get 640x480 ROI for stereo
+	}
+	medianBlur(camROI, camROI, 5);
+	// Resize the image to match the projector size
+	resize(camROI,camROI,Size(640,480),0,0,CV_INTER_CUBIC);
+	cvtColor(camROI,graycam, CV_RGB2GRAY);
+	
+	// Find Chesskerboard corners
+	foundCheckersFlag = findChessboardCorners(graycam, cboardSize, tempCamCorners,CALIB_CB_ADAPTIVE_THRESH);
+	// If found, refine estimates and print corners
+	if(foundCheckersFlag)
+	{
+	  printf("Found checkerboard\n");
+	  cornerSubPix(graycam, tempCamCorners, Size(11,11), Size(-1,-1),TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER,30,0.1));
+	  printPoints(tempCamCorners);
+	}
+	// Draw over image
+	drawChessboardCorners(camROI, cboardSize, Mat(tempCamCorners),foundCheckersFlag); 
+	imshow("Preview",camROI);
+	if(waitKey(1) >= 0 && foundCheckersFlag) // Wait for keypress
+	{
+	  printf("User input detected:\nRunning Graymap Backprojection\n");
+	  break;
+	}
       }
-      medianBlur(camROI, camROI, 5);
-      // Resize the image to match the projector size
-      resize(camROI,camROI,Size(640,480),0,0,CV_INTER_CUBIC);
-      cvtColor(camROI,graycam, CV_RGB2GRAY);
+      camCorners.push_back(tempCamCorners);
+      // Run through mapping pattern
+      map->runMapping(lvls,true);
+      printf("Mapping complete\n");
+      grayMapCamH = map->getGrayH();	// Get camera horizontal pattern
+      grayMapCamV = map->getGrayV();	// Get camera vertical pattern
+      grayMapProjH = map->getGrayProjH(); // Get projector horizontal pattern
+      grayMapProjV = map->getGrayProjV(); // Get projector vertical pattern
+    
+      // Reproject corners into projector frame using gray code values
+      projCorners.push_back(backprojectPoints(grayMapCamH, grayMapCamV, grayMapProjH, grayMapProjV, 1024/ActiveStereoMap::intPow(2,lvls), tempCamCorners, tempProjCorners));
       
-      // Find Chesskerboard corners
-      foundCheckersFlag = findChessboardCorners(graycam, cboardSize, tempCamCorners,CALIB_CB_ADAPTIVE_THRESH);
-      // If found, refine estimates and print corners
-      if(foundCheckersFlag)
-      {
-	printf("Found checkerboard\n");
-	cornerSubPix(graycam, tempCamCorners, Size(11,11), Size(-1,-1),TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER,30,0.1));
-	printPoints(tempCamCorners);
-      }
-      // Draw over image
-      drawChessboardCorners(camROI, cboardSize, Mat(tempCamCorners),foundCheckersFlag); 
-      imshow("Preview",camROI);
-      if(waitKey(1) >= 0 && foundCheckersFlag) // Wait for keypress
-      {
-	printf("User input detected:\nRunning Graymap Backprojection\n");
-	break;
-      }
+      // Store reprojected corners out to projector buffer
+      objCornersGroup.push_back(objCorners);
+      
+      vector<Vec2f> pcorners = projCorners.back();
+      vector<Vec2f> ccorners = camCorners.back();
+      Mat qq, rr;
+      map->getGrayV().convertTo(rr,CV_8UC1);
+      map->getGrayProjV().convertTo(qq,CV_8UC1);
+      drawChessboardCorners(rr,cboardSize,Mat(ccorners),true);
+      drawChessboardCorners(qq,cboardSize,Mat(pcorners),true);
+      imshow("Projector Corners",qq);
+      imshow("Preview",rr);
+      
+      saveCalPointsToFile(objCornersGroup, camCorners, projCorners);
+    } 
+  }
+  else
+  {
+    // Load cals if available
+    if(!readCalPointsFromFile(&objCornersGroup, &camCorners, &projCorners))
+      return false;
+    else
+    {
+      printf("ObjSize:%d\nCCSize:%d\nPCSize:%d\n",(uint)objCornersGroup.size(),(uint)camCorners.size(),(uint)projCorners.size());
     }
-    camCorners.push_back(tempCamCorners);
-    // Run through mapping pattern
-    map->runMapping(lvls);
-    printf("Mapping complete\n");
-    grayMapCamH = map->getGrayH();	// Get camera horizontal pattern
-    grayMapCamV = map->getGrayV();	// Get camera vertical pattern
-    grayMapProjH = map->getGrayProjH(); // Get projector horizontal pattern
-    grayMapProjV = map->getGrayProjV(); // Get projector vertical pattern
-    
-    //map->printGrayHSize();
-    /*namedWindow("GrayTest",1);
-    Mat visMat = Mat::zeros(grayMapCamH.size(),CV_8UC1);
-    (grayMapCamH).convertTo(visMat, CV_8UC1, 1, 0);
-    imshow("GrayTest",255*visMat);
-    while(waitKey(0) < 0);*/
+  }
   
-    // Reproject corners into projector frame using gray code values
-    projCorners.push_back(backprojectPoints(grayMapCamH, grayMapCamV, grayMapProjH, grayMapProjV, 1024/ActiveStereoMap::intPow(2,lvls), tempCamCorners, tempProjCorners));
-    
-
-    // Store reprojected corners out to projector buffer
-    //projCorners.push_back();//insert(projCorners.end(),tempCorners.begin(),tempCorners.end());
-    objCornersGroup.push_back(objCorners);
-  } 
-  
-  vector<Vec2f> pcorners = projCorners.back();
-  vector<Vec2f> ccorners = camCorners.back();
-  Mat qq, rr;
-  map->getGrayV().convertTo(rr,CV_8UC1);
-  map->getGrayProjV().convertTo(qq,CV_8UC1);
-  drawChessboardCorners(rr,cboardSize,Mat(ccorners),true);
-  drawChessboardCorners(qq,cboardSize,Mat(pcorners),true);
-  
-  namedWindow("Projector Corners",1);
-  imshow("Projector Corners",qq);
-  imshow("Preview",rr);
-  saveCalPointsToFile(objCornersGroup, camCorners, projCorners);
-  
+  Size targetSize = Size(640,480);
   Mat camMat, distCam, projMat, distProj;
   vector<Mat> camRvecs, camTvecs, projRvecs, projTvecs;
   printf("ObjCornersGroup = %u\n",(uint)objCornersGroup.at(0).size());
   printf("CamCornersGroup = %u\n",(uint)camCorners.at(0).size());
   printf("ProjCornersGruppe = %u\n",(uint)projCorners.at(0).size());
   printf("Calibrating camera...\n");
-  double camReprojErr = calibrateCamera(objCornersGroup,camCorners,Size(640,480),camMat, distCam, camRvecs, camTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);// Perform intrinsic calibrations
+  double camReprojErr = calibrateCamera(objCornersGroup,camCorners,targetSize,camMat, distCam, camRvecs, camTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);// Perform intrinsic calibrations
   printf("Camera Reprojection Error: %f\n",camReprojErr);
   printf("Calibrating projector...\n");
-  double projReprojErr = calibrateCamera(objCornersGroup, projCorners,Size(640,480),projMat, distProj, projRvecs, projTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
+  double projReprojErr = calibrateCamera(objCornersGroup, projCorners,targetSize,projMat, distProj, projRvecs, projTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
   printf("Projector Reprojection Error: %f\n",projReprojErr);
 
-  cals->MCam = camMat.clone();
-  cals->MProj = projMat.clone();
-  cals->DistCam = distCam.clone();
-  cals->DistProj = distProj.clone();
+  RC.MCam = camMat.clone();
+  RC.MProj = projMat.clone();
+  RC.DistCam = distCam.clone();
+  RC.DistProj = distProj.clone();
   
+  printf("Intrinsic calibrations complete\n");
+  
+  Mat camSource;
+  Mat projSource;
+  if(ncals > 0)
+  {
+    camSource = camROI;
+    projSource = map->getGrayProjV();
+  }
+  else
+  {
+    camSource = imread("norris_2.jpg", CV_LOAD_IMAGE_COLOR);
+    projSource = camSource.clone();
+  }
+
   // Show calibration
   namedWindow("Camera Calibration",1);
   namedWindow("Projector Calibration",1);
   Mat calCam, calProj;
-  undistort(camROI, calCam, cals->MCam, cals->DistCam);
-  undistort(map->getGrayProjH(), calProj, cals->MProj, cals->DistProj);//cals->MProj,cals->DistProj);
+  undistort(camSource, calCam, RC.MCam, RC.DistCam);
+  undistort(projSource, calProj, RC.MProj, RC.DistProj);//cals->MProj,cals->DistProj);
   imshow("Camera Calibration",calCam);
   imshow("Projector Calibration",calProj);
   
   printf("Computing stereo calibration\n");
   // Perform stereo calibration on correspondence points
-  Mat Rstereo, Tstereo, Estereo, Fstereo;
+  /*Mat Rstereo, Tstereo, Estereo, Fstereo;
   double rmsRPE = stereoCalibrate(objCornersGroup, projCorners, camCorners, 
 		  cals->MProj, cals->DistProj, cals->MCam, cals->DistCam,
-		  map->getPatternSize(),
+		  targetSize,
 		  Rstereo, Tstereo, Estereo, Fstereo,
 		  TermCriteria(TermCriteria::COUNT+TermCriteria::EPS,30,1e-6),
 		  CALIB_FIX_INTRINSIC);
   printf("Stereo Reprojection Error RMS: %f\n",rmsRPE);
   cals->R = Rstereo.clone();
   cals->T = Tstereo.clone();
-  cals->E = Estereo.clone();
-  cals->F = Fstereo.clone();
+  cals->F = Fstereo.clone();*/
   
   // Test stereo rectification
   Mat rectCam, rectProj;
   Mat rectRProj, rectRCam, rectPProj, rectPCam, rectQ;
+  Mat camMap[2], projMap[2];
+  Mat newCamMat, newProjMat;
+  vector<Vec2f> allProjCorners, allCamCorners;
+  int iter,in;
+  for(iter=0;iter<projCorners.size();iter++)
+  {
+    for(in=0;in<projCorners.at(iter).size();in++)
+    {
+      allProjCorners.push_back(projCorners.at(iter).at(in));
+      allCamCorners.push_back(camCorners.at(iter).at(in));
+    }
+  }
   printf("Computing stereo rectification\n");
+  
+    RC.F = findFundamentalMat(allProjCorners, allCamCorners, FM_8POINT, 0, 0);
+    printf("Fundamental matrix found\n");
+    Mat H1, H2, P1, P2, R1, R2;
+  
+    Size rectSize(960,720);
+    stereoRectifyUncalibrated(allProjCorners, allCamCorners, RC.F, rectSize, H1, H2, 3);
+    printf("Uncal stereo rectification found\n");
+    R1 = RC.MProj.inv()*H1*RC.MProj;
+    R2 = RC.MCam.inv()*H2*RC.MCam;
+    P1 = RC.MProj;
+    P2 = RC.MCam;
+    printf("Computing undistortion transform\n");
+    //Precompute maps for cv::remap()
+    initUndistortRectifyMap(RC.MProj, RC.DistProj, R1, P1, rectSize, CV_16SC2, RC.projMap[0], RC.projMap[1]);
+    initUndistortRectifyMap(RC.MCam, RC.DistCam, R2, P2, rectSize, CV_16SC2, RC.camMap[0], RC.camMap[1]);
+
+  /*
   stereoRectify(cals->MProj, cals->DistProj, cals->MCam, cals->DistCam,
-		map->getPatternSize(),
+		targetSize,
 		Rstereo, Tstereo, rectRProj, rectRCam, 
 		rectPProj, rectPCam, rectQ,
 		CALIB_ZERO_DISPARITY,
-		-1, map->getPatternSize(), 0, 0);
-  
-  Mat newCamMat, newProjMat;
-  Mat camMap[2], projMap[2];
+		-1, targetSize, 0, 0);
   // Generate undistortion maps
   printf("Generating undistorting maps\n");
   initUndistortRectifyMap(cals->MProj, cals->DistProj, rectRProj,
-			  newProjMat, map->getPatternSize(),
+			  newProjMat, targetSize,
 			  CV_32FC1,
 			  projMap[0], projMap[1]);
   
   initUndistortRectifyMap(cals->MCam, cals->DistCam, rectRCam, 
-			  newCamMat , map->getPatternSize(),
+			  newCamMat , targetSize,
 			  CV_32FC1,
 			  camMap[0], camMap[1]);
   
   printf("Rectifying images\n");
+
+  */
+  printf("Getting images to remap\n");
   Mat rectifiedCam, rectifiedProj;
+  rectifiedCam.create(1,1,CV_8UC1);
+  rectifiedProj.create(1,1,CV_8UC1);
   Mat gv, gpv;
-  //gv = imread("norris_2.jpg", CV_LOAD_IMAGE_COLOR);
-  //gpv = gv.clone();
-  map->getGrayV().convertTo(gv, CV_8UC1);
-  map->getGrayProjV().convertTo(gpv, CV_8UC1);
+  gv = imread("norris_2.jpg", CV_LOAD_IMAGE_COLOR);
+  gpv = gv.clone();
+  //map->getGrayV().convertTo(gv, CV_8UC1);
+  //map->getGrayProjV().convertTo(gpv, CV_8UC1);
+  printf("Remapping Images\n");
+  rectifyImages(gv,gpv,&rectifiedCam,&rectifiedProj);
+  //remap(gv,rectifiedCam,RC.camMap[0],RC.camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  //remap(gpv,rectifiedProj,RC.projMap[0],RC.projMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
   
-  remap(qq,rectifiedCam,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
-  remap(rr,rectifiedProj,projMap[0],projMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
-  
+  printf("IMSIZE %dx%d\n",rectifiedCam.size().width, rectifiedCam.size().height);
+
   printf("Displaying rectified images\n");
   namedWindow("Rectified Camera",1);
   namedWindow("Rectified Projector",1);
@@ -190,12 +248,68 @@ bool ActiveCal::calibrate(cal_set * cals, VideoCapture c, Size cboardSize, float
 }
 
 /**
- * 
+ * @brief Calibrates from stored points without displaying images
  */
-void ActiveCal::calMapping(void)
+bool ActiveCal::calibratePassive(void)
 {
+  if(!readCalPointsFromFile(&objCornersGroup, &camCorners, &projCorners))
+      return false;
+
+  Size targetSize = Size(640,480);
+  Mat camMat, distCam, projMat, distProj;
+  vector<Mat> camRvecs, camTvecs, projRvecs, projTvecs;
+  printf("ObjCornersGroup = %u\n",(uint)objCornersGroup.at(0).size());
+  printf("CamCornersGroup = %u\n",(uint)camCorners.at(0).size());
+  printf("ProjCornersGruppe = %u\n",(uint)projCorners.at(0).size());
+  printf("Calibrating camera...\n");
+  double camReprojErr = calibrateCamera(objCornersGroup,camCorners,targetSize,camMat, distCam, camRvecs, camTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);// Perform intrinsic calibrations
+  printf("Camera Reprojection Error: %f\n",camReprojErr);
+  printf("Calibrating projector...\n");
+  double projReprojErr = calibrateCamera(objCornersGroup, projCorners,targetSize,projMat, distProj, projRvecs, projTvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
+  printf("Projector Reprojection Error: %f\n",projReprojErr);
+
+  RC.MCam = camMat.clone();
+  RC.MProj = projMat.clone();
+  RC.DistCam = distCam.clone();
+  RC.DistProj = distProj.clone();
+  
+  printf("Intrinsic calibrations complete\n");
+  
+  Mat rectCam, rectProj;
+  Mat rectRProj, rectRCam, rectPProj, rectPCam, rectQ;
+  Mat camMap[2], projMap[2];
+  Mat newCamMat, newProjMat;
+  vector<Vec2f> allProjCorners, allCamCorners;
+  int iter,in;
+  for(iter=0;iter<projCorners.size();iter++)
+  {
+    for(in=0;in<projCorners.at(iter).size();in++)
+    {
+      allProjCorners.push_back(projCorners.at(iter).at(in));
+      allCamCorners.push_back(camCorners.at(iter).at(in));
+    }
+  }
+  printf("Computing stereo rectification\n");
+  
+    RC.F = findFundamentalMat(allProjCorners, allCamCorners, FM_8POINT, 0, 0);
+    printf("Fundamental matrix found\n");
+    Mat H1, H2, P1, P2, R1, R2;
+  
+    stereoRectifyUncalibrated(allProjCorners, allCamCorners, RC.F, targetSize, H1, H2, 2);
+    printf("Uncal stereo rectification found\n");
+    R1 = RC.MProj.inv()*H1*RC.MProj;
+    R2 = RC.MCam.inv()*H2*RC.MCam;
+    P1 = RC.MProj;
+    P2 = RC.MCam;
+    printf("Computing undistortion transform\n");
+    //Precompute maps for cv::remap()
+    initUndistortRectifyMap(RC.MProj, RC.DistProj, R1, P1, targetSize, CV_16SC2, RC.projMap[0], RC.projMap[1]);
+    initUndistortRectifyMap(RC.MCam, RC.DistCam, R2, P2, targetSize, CV_16SC2, RC.camMap[0], RC.camMap[1]);
+  
+    return true;
   
 }
+
 
 /**
  * @brief Finds the corresponding set of points in the projector frame
@@ -209,9 +323,7 @@ void ActiveCal::calMapping(void)
  */
 vector<Vec2f> ActiveCal::backprojectPoints(Mat grayMapCamH, Mat grayMapCamV, Mat grayMapProjH, Mat grayMapProjV, int cellSize, vector<Vec2f> camCorners, vector<Vec2f> projCorners)
 {
-  //vector<Vec2f> projCorners;
   vector<Vec2f> tempCorners;
-  //projCorners.clear();
   int len = camCorners.size();
   int it;
   int imgX, imgY;
@@ -260,6 +372,29 @@ void ActiveCal::generateObjectCorners(Size cboardSize, float sqWidth, float sqHe
      objCorners.push_back(ptCoord);
    }
   }
+}
+
+
+vector<Mat> ActiveCal::getRectificationTransforms(void)
+{
+  vector<Mat> ov;
+  ov.push_back(RC.camMap[0]);
+  ov.push_back(RC.camMap[1]);
+  ov.push_back(RC.projMap[0]);
+  ov.push_back(RC.projMap[1]);
+  return ov;
+}
+/**
+ * 
+ */
+void ActiveCal::rectifyImages(Mat camImg, Mat projImg, Mat *rectCam, Mat *rectProj)
+{
+  Mat rc, rp;
+  remap(camImg,rc,RC.camMap[0],RC.camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  remap(projImg,rp,RC.projMap[0],RC.projMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
+  *rectCam = rc.clone();
+  *rectProj = rp.clone();
+  printf("%d\n",rectCam->size().width);
 }
 
 
@@ -382,7 +517,7 @@ bool ActiveCal::saveCalPointsToFile(vector<vector<Vec3f> > objSet, vector<vector
  * @param projSet Output array of arrays of corner points in projector space (2D)
  * @return Success of load operation
  */
-bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vector<Vec2f> > camSet, vector<vector<Vec2f> > projSet)
+bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > * objSet, vector<vector<Vec2f> > * camSet, vector<vector<Vec2f> > *projSet)
 {
   ifstream calfs;
   printf("Opening and reading calibration points from file\n");
@@ -423,6 +558,10 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	if(line.find("END_OBJECT") != string::npos)
 	{
 	  state++;
+	  while(line.find("CAMERA") == string::npos)
+	  {
+	    getline(calfs,line);
+	  }
 	  count = 0;
 	  break;
 	}
@@ -432,7 +571,7 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	 while(sse->good())
 	 {
 	  getline(*sse,temp,';');
-	  cout << temp << endl; // Test print
+	  //cout << temp << endl; // Test print
 	  ssi = new istringstream(temp);
 	  getline(*ssi,temp,',');
 	  c3pt[0] = stringToFloat(temp);
@@ -440,12 +579,12 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	  c3pt[1] = stringToFloat(temp);
 	  getline(*ssi,temp);
 	  c3pt[2] = stringToFloat(temp);
-	  printf("%f,%f,%f\n",c3pt[0],c3pt[1],c3pt[2]);
+	  //printf("%f,%f,%f\n",c3pt[0],c3pt[1],c3pt[2]);
 	  c3vec.push_back(c3pt);
 	  free(ssi);
 	 }
 	 c3vec.pop_back();
-	 objSet.push_back(c3vec);
+	 objSet->push_back(c3vec);
 	 c3vec.clear();
 	 count++;
 	 // Parse into segments by semicolon
@@ -459,6 +598,10 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	if(line.find("END_CAMERA") != string::npos)
 	{
 	 state++;
+	 while(line.find("PROJECTOR") == string::npos)
+	 {
+	  getline(calfs,line);
+	 }
 	 count = 0;
 	 break;
 	}
@@ -468,7 +611,7 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	 while(sse->good())
 	 {
 	   getline(*sse,temp,';');
-	   cout << temp << endl;
+	   //cout << temp << endl;
 	   ssi = new istringstream(temp);
 	   getline(*ssi,temp,',');
 	   c2pt[0] = stringToFloat(temp);
@@ -478,7 +621,7 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	   free(ssi);
 	 }
 	 c2vec.pop_back(); // Clear out end of line silliness
-	 camSet.push_back(c2vec);
+	 camSet->push_back(c2vec);
 	 c2vec.clear();
 	 count++;
 	 free(sse);
@@ -499,7 +642,7 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	 while(sse->good())
 	 {
 	   getline(*sse,temp,';');
-	    cout << temp << endl;
+	    //cout << temp << endl;
 	    ssi = new istringstream(temp);
 	    getline(*ssi,temp,',');
 	    c2pt[0] = stringToFloat(temp);
@@ -513,7 +656,7 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
 	    free(ssi);
 	 }
 	 c2vec.pop_back();
-	 projSet.push_back(c2vec);
+	 projSet->push_back(c2vec);
 	 c2vec.clear();
 	 count++;
 	 free(sse);
@@ -526,13 +669,14 @@ bool ActiveCal::readCalPointsFromFile(vector<vector<Vec3f> > objSet, vector<vect
     
   }
   calfs.close();
-  /*
-  Vec3f vvv = objSet.back().back();
-  printf("%d V = [%f,%f,%f]\n",(uint)objSet.back().size(),vvv[0],vvv[1],vvv[2]);
-  Vec2f vv = camSet.back().back();
-  printf("%d VV = [%f,%f]\n",(uint)camSet.back().size(),vv[0],vv[1]);
-  vv = projSet.back().back();
-  printf("%d VVV = [%f,%f]\n",(uint)projSet.back().size(),vv[0],vv[1]);
-  */
+  
+  Vec3f vvv = objSet->back().back();
+  printf("%d V = [%f,%f,%f]\n",(uint)(objSet->back()).size(),vvv[0],vvv[1],vvv[2]);
+  Vec2f vv = camSet->back().back();
+  printf("%d VV = [%f,%f]\n",(uint)(camSet->back()).size(),vv[0],vv[1]);
+  vv = projSet->back().back();
+  printf("%d VVV = [%f,%f]\n",(uint)(projSet->back()).size(),vv[0],vv[1]);
+  
+  printf("File read complete\n");
   return true;
 }

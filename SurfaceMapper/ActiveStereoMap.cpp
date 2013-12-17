@@ -16,8 +16,10 @@ using namespace std;
  */
 ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
 {
-  //namedWindow("Elephant",CV_WINDOW_NORMAL);
+  namedWindow("Projector",CV_WINDOW_NORMAL);
   //namedWindow("Elephant",1);
+  cal = new ActiveCal();
+  cal->calibratePassive();
   printf("Initializing stereo mapper\n");
   cap = c;
   Mat sizeMat;
@@ -25,7 +27,7 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   streamSize = sizeMat.size();
   printf("Camera resolution: %dx%d\n",streamSize.width,streamSize.height);
   sizeMat.release();
-  
+  waitKey(1000);
   patternSize = projSize; 
   grayPattern = Mat::zeros(patternSize,CV_16UC1);
   grayProjH  = Mat::zeros(patternSize,CV_16UC1);
@@ -34,6 +36,7 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
   grayH = Mat::zeros(patternSize,CV_16UC1);
   grayV = Mat::zeros(patternSize,CV_16UC1);
   printf("Creating projector window at %dx%d\n",patternSize.width,patternSize.height);
+  
   moveWindow("Projector",1600,0);
   cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
   Mat filler = Mat::zeros(patternSize,CV_8UC1);
@@ -53,7 +56,7 @@ ActiveStereoMap::ActiveStereoMap(VideoCapture c, Size projSize)
  * @brief Runs a horizontal/vertical gray code mapping routine
  * @param levels Number of gray code levels to use (2^levels) regions
  */
-void ActiveStereoMap::runMapping(int levels)
+void ActiveStereoMap::runMapping(int levels, bool bidir)
 {
   int level;
   numLevels = levels;
@@ -61,6 +64,14 @@ void ActiveStereoMap::runMapping(int levels)
   Mat patMat  = Mat::zeros(patternSize, CV_16UC1);
   Mat tempPattern;
   Mat tempMat;
+  
+  grayPattern = Mat::zeros(patternSize,CV_16UC1);
+  grayProjH  = Mat::zeros(patternSize,CV_16UC1);
+  grayProjV  = Mat::zeros(patternSize,CV_16UC1);
+  grayImg = Mat::zeros(streamSize,CV_16UC1);
+  grayH = Mat::zeros(patternSize,CV_16UC1);
+  grayV = Mat::zeros(patternSize,CV_16UC1);
+  
   waitKey(1200);
   cap >> tempMat;
   //imshow("Camera",tempMat);
@@ -70,9 +81,11 @@ void ActiveStereoMap::runMapping(int levels)
     tempPattern = ProcGen::getPattern(patternSize,level,VERTICAL, false);
     capturePattern(tempPattern, tempMat, levels, level, false);
     
-    tempPattern = ProcGen::getPattern(patternSize,level,HORIZONTAL,false);
-    //imshow("Projector", tempPattern);
-    capturePattern(tempPattern, tempMat, levels, level, true);
+    if(bidir) // Bidirectional mapping
+    {
+      tempPattern = ProcGen::getPattern(patternSize,level,HORIZONTAL,false);
+      capturePattern(tempPattern, tempMat, levels, level, true);
+    }
   }
   generateGrayLuts(); // Generate gray->binary lookup
 }
@@ -95,7 +108,7 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   imshow("Projector", tempPattern);
   bitwise_not(tempPattern, invTempPattern); // Generate inverted pattern
   Mat procMat = Mat::zeros(Size(PROJECTOR_W,PROJECTOR_H),CV_16UC1);
-  waitKey(900);//usleep(3000000);// sleep
+  waitKey(700);//usleep(3000000);// sleep
   int trash;
   for(trash=0;trash<3;trash++) // Clear out frames
     cap >> tempMat;
@@ -104,7 +117,7 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
   
   // Get Inverted Pattern
   imshow("Projector", invTempPattern);
-  waitKey(900);
+  waitKey(700);
   for(trash=0;trash<3;trash++)
     cap >> tempMat;
   cap >> tempMat;
@@ -139,72 +152,72 @@ void ActiveStereoMap::capturePattern(Mat tempPattern, Mat tempMat, int levels, i
  * @brief Computes the disparity between the images given a calibrated fundamental matrix
  * @return Disparity map image from the projector perspective
  */
-Mat ActiveStereoMap::computeDisparity(Mat dCam, Mat dProj, Mat R, Mat T)
+Mat ActiveStereoMap::computeDisparity(void)
 {
-  Mat retMat;
-  // TODO: everything in this function
-  /*
-  Mat camMat, projMat
-  Mat cameraRectified, projRectified;
-  Mat dispToDepth; // 4x4 Disparity to depth mapping transform
   
-  stereoRectify(camMat, distCam, projMat, distProj, 
-		  Size(640,480),R,T,
-		  camRectified, projRectified, dispToDepth,
-		 CALIB_ZERO_DISPARITY, -1
-		 
-  
-  // Find distance to matching patch along epipolar line
-  */
-  /*
-  Vec2i grayLvl; // Current projector gray (row,col)
-  Vec2i backProjection; // Backprojected location
-  for(int y=0;y<grayH.size().height;y++)
-  {
-   for(int x=0;x<grayH.size().width;x++)
-   {
-     grayLvl[0] = grayProjH.at<int>(y,x);// Get projector pixel at (x,y)
-     grayLvl[1] = grayProjV.at<int>(y,x);
-     // Backproject pixel location into camera frame
-     // Search locally for matching gray region
-     // Compute disparity as euclidean distance between points or mark an unknown
-   }
-  }*/
-  
-  cal_set * cals; // = ActiveCalgetCals();
-  Mat Rstereo, Tstereo, Estereo, Fstereo;
   Mat rectCam, rectProj;
-  Mat rectRProj, rectRCam, rectPProj, rectPCam, rectQ;
-  printf("Computing stereo rectification\n");
-  stereoRectify(cals->MProj, cals->DistProj, cals->MCam, cals->DistCam,
-		patternSize,
-		Rstereo, Tstereo, rectRProj, rectRCam, 
-		rectPProj, rectPCam, rectQ,
-		CALIB_ZERO_DISPARITY,
-		-1, patternSize, 0, 0);
-  
-  Mat newCamMat, newProjMat;
-  Mat camMap[2], projMap[2];
-  // Generate undistortion maps
-  printf("Generating undistorting maps\n");
-  initUndistortRectifyMap(cals->MProj, cals->DistProj, rectRProj,
-			  newProjMat, patternSize,
-			  CV_32FC1,
-			  projMap[0], projMap[1]);
-  
-  initUndistortRectifyMap(cals->MCam, cals->DistCam, rectRCam, 
-			  newCamMat , patternSize,
-			  CV_32FC1,
-			  camMap[0], camMap[1]);
-  
-  printf("Rectifying images\n");
-  Mat rectifiedGrayProjH, rectifiedGrayProjV, rectifiedGrayH, rectifiedGrayV;
-  remap(grayV,rectifiedGrayV,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
-  remap(grayH,rectifiedGrayH,camMap[0],camMap[1],CV_INTER_NN,BORDER_CONSTANT,0);
-  remap(grayProjV,rectifiedGrayProjV,projMap[0], projMap[1], CV_INTER_NN, BORDER_CONSTANT,0);
-  remap(grayProjH,rectifiedGrayProjH,projMap[0], projMap[1], CV_INTER_NN, BORDER_CONSTANT,0);
+  Size targetSize(640,480);
+  Mat dispMap = Mat::zeros(targetSize,CV_32F);
+  cal->rectifyImages(grayV,grayProjV,&rectCam,&rectProj);
+  namedWindow("Rectified Projector",1);
+  namedWindow("Rectified Camera",1);
+  Mat showCam, showProj, showDisp;
 
-  return retMat;
+  int x,y;
+  uint grayVal;
+  float disp;
+  for(y=0;y<rectProj.size().height;y++)
+  {
+    for(x=0;x<rectProj.size().width;x++)
+    {
+      grayVal = rectProj.at<short>(y,x);
+      if(grayVal != 0)
+      {
+	disp = expandingSearch(rectCam,x,y,grayVal,60);
+	if(disp !=-32768)
+	{
+	  //dispMap(Range(y,y),Range(x,x)) = disp;
+	  dispMap.at<float>(y,x) = disp;
+	  printf("%f\n",dispMap.at<float>(y,x));
+	}
+      }
+    }
+  }
+  // Search for value
+  rectProj = rectProj / 2;
+  rectCam = rectCam / 2;
+  rectCam.convertTo(showCam, CV_8UC1);
+  rectProj.convertTo(showProj,CV_8UC1);
+  dispMap.convertTo(showDisp, CV_8UC1);
+
+  imshow("Rectified Projector", showProj);
+  imshow("Rectified Camera",showCam);
+  imshow("Disparity",showDisp);
+  waitKey(0);
+  return dispMap;
+}
+
+/**
+ * 
+ */
+float ActiveStereoMap::expandingSearch(Mat searchImg, uint xloc, uint yloc, uint grayVal, uint cutoff)
+{
+  short xp = 0;
+  while(xp <= cutoff)
+  {
+    if(searchImg.at<short>(yloc,xloc+xp) == grayVal)
+    {
+      printf("Found match at %d\n",xp);
+      return (float) xp;
+    }
+    else if(searchImg.at<short>(yloc,xloc-xp) == grayVal)
+    {
+      printf("Found match at -%d\n",xp);
+      return (float)(-1*xp);
+    }
+    xp++;
+  } 
+  return (float)(-32768);
 }
 
 /**
@@ -377,7 +390,9 @@ Mat ActiveStereoMap::getWindow(int x, int y, int size)
  {
    Mat whiteMat = brightness*Mat::ones(patternSize,CV_8UC1);
    imshow("Projector",whiteMat);
+   printf("Moving window\n");
    moveWindow("Projector",1600,0);
+   printf("Window moved\n");
    cvSetWindowProperty("Projector", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
  }
 
